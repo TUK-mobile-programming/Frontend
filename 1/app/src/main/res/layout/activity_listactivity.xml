@@ -67,10 +67,10 @@
                         android:text="보관 중인 타임캡슐 이름"
                         />
                     <ImageView
-                        android:id="@+id/r9ljk3zxn6r8"
+                        android:id="@+id/list_image"
                         android:layout_width="match_parent"
                         android:layout_height="284dp"
-                        android:src="@mipmap/ic_launcher"
+                        android:src="@drawable/sampleimage"
                         android:scaleType="fitXY"
                         />
                     <LinearLayout
