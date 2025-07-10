@@ -1,6 +1,7 @@
 // MainActivity.kt (Bottom Navigation Bar 및 프래그먼트 전환 로직 포함)
 package com.example.a1 // 실제 패키지 이름 확인
 
+import CapsuleFragment
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -9,7 +10,6 @@ import com.example.a1.Homefragment
 import com.example.a1.Addfragment
 import com.example.a1.Listfragment
 import com.example.a1.Mypagefragment
-import com.example.a1.ArchiveFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.capsulefragment -> { // navi_menu.xml의 ID와 일치시켜야 합니다.
-                    replaceFragment(ArchiveFragment()) // Navigation Graph의 ID로 이동
+                    replaceFragment(CapsuleFragment()) // Navigation Graph의 ID로 이동
                     true
                 }
                 else -> false
