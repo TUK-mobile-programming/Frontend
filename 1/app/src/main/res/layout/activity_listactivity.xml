@@ -149,7 +149,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="Reviews"
+                        android:text="이야기"
                         />
                 </LinearLayout>
                 <LinearLayout
