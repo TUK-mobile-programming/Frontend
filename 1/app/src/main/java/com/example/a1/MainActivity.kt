@@ -1,7 +1,6 @@
 // MainActivity.kt (Bottom Navigation Bar 및 프래그먼트 전환 로직 포함)
 package com.example.a1 // 실제 패키지 이름 확인
 
-import CapsuleFragment
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
