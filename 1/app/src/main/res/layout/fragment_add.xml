@@ -1,14 +1,420 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Addfragment">
+    android:orientation="vertical"
+    android:background="#FFFFFF">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!-- ───────────── 스크롤 본문 ───────────── -->
+    <ScrollView
+        android:id="@+id/scrollBody"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- ───────────── 배경 블록 (보라) ───────────── -->
+            <LinearLayout
+                android:id="@+id/blockPurple"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#191121">
+
+                <!-- ※ 하위 marginBottom=176dp 는 기존 디자인값 유지 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="176dp">
+
+                    <!-- ── 툴바 ── -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:background="#191121">
+
+                        <ImageView
+                            android:id="@+id/btnBack"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="24dp"
+                            android:layout_marginVertical="12dp"
+                            android:src="@mipmap/ic_launcher"
+                            android:scaleType="fitXY" />
+
+                        <TextView
+                            android:id="@+id/tvHeader"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="새로운 타임캡슐"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp" />
+                    </LinearLayout>
+
+                    <!-- ── 제목 ── -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:id="@+id/labelTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="제목"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <EditText
+                            android:id="@+id/etTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/cr12b352842"
+                            android:hint="Enter title"
+                            android:inputType="text"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="32dp"
+                            android:paddingVertical="16dp"
+                            android:textColor="#AD99C1"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <!-- ── 내용 ── -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:id="@+id/labelBody"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="내용"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <EditText
+                            android:id="@+id/etBody"
+                            android:layout_width="match_parent"
+                            android:layout_height="144dp"
+                            android:background="@drawable/cr12b352842"
+                            android:gravity="top|start"
+                            android:hint="Enter content"
+                            android:inputType="textMultiLine"
+                            android:maxLines="6"
+                            android:padding="16dp"
+                            android:textColor="#AD99C1"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <!-- ── 태그 ── -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="9dp">
+
+                        <TextView
+                            android:id="@+id/labelTag"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="태그"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <EditText
+                            android:id="@+id/etTag"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:background="@drawable/cr12b352842"
+                            android:gravity="top|start"
+                            android:hint="#tag (쉼표로 구분)"
+                            android:inputType="textMultiLine"
+                            android:maxLines="3"
+                            android:padding="16dp"
+                            android:textColor="#AD99C1"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <!-- ── 미디어 첨부 ── -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="미디어 첨부"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="3dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end">
+
+                            <LinearLayout
+                                android:id="@+id/btnAddMedia"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingVertical="1dp"
+                                android:paddingHorizontal="12dp"
+                                android:background="@drawable/cr100b6750a4"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:src="@mipmap/ic_launcher"
+                                    android:scaleType="fitXY" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="추가"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- ── D-Day 설정 ── -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="D-Day 설정"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginVertical="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:paddingBottom="20dp"
+                        android:paddingTop="8dp">
+
+                        <!-- (기존 날짜 셀 유지) -->
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <!-- 날짜 선택 박스 -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:background="@drawable/s6750a4sw3cr4"
+                                android:paddingLeft="16dp"
+                                android:paddingVertical="4dp">
+
+                                <TextView
+                                    android:id="@+id/tvDday"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="08/17/2025"
+                                    android:textColor="#1D1B20"
+                                    android:textSize="16sp"
+                                    android:layout_marginBottom="13dp"
+                                    android:layout_marginEnd="160dp"
+                                    android:layout_marginTop="12dp" />
+
+                                <ImageView
+                                    android:id="@+id/btnPickDate"
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:src="@mipmap/ic_launcher"
+                                    android:scaleType="fitXY" />
+                            </LinearLayout>
+
+                            <!-- Date 라벨 -->
+                            <LinearLayout
+                                android:layout_width="34dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:background="#FEF7FF"
+                                android:gravity="center_horizontal"
+                                android:layout_marginStart="12dp"
+                                android:layout_marginTop="-8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Date"
+                                    android:textColor="#6750A4"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MM/DD/YYYY"
+                            android:textColor="#49454F"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginStart="16dp" />
+                    </LinearLayout>
+
+                    <!-- ── 추가 설정 ── -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="추가 설정"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginVertical="16dp" />
+
+                    <!-- 조건 설정 (Switch + 숨김 입력창) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:background="#191121">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="조건 설정"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp" />
+
+                            <androidx.appcompat.widget.SwitchCompat
+                                android:id="@+id/switchCondition"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:thumbTint="#6750A4"
+                                android:trackTint="#AD99C1" />
+                        </LinearLayout>
+
+                        <EditText
+                            android:id="@+id/etCondition"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/cr12b352842"
+                            android:hint="조건을 입력하세요"
+                            android:inputType="text"
+                            android:padding="16dp"
+                            android:textColor="#AD99C1"
+                            android:textSize="16sp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- 공동 캡슐 설정 (Switch) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp"
+                        android:background="#191121">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="공동 캡슐 설정"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switchJoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="#6750A4"
+                            android:trackTint="#AD99C1" />
+                    </LinearLayout>
+
+                </LinearLayout> <!-- /purple block -->
+
+            </LinearLayout>
+
+            <!-- ───────────── 캡슐 생성 버튼 (하단) ───────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="21dp">
+
+                <LinearLayout
+                    android:id="@+id/btnCreateCapsule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="16dp"
+                    android:background="@drawable/cr100b6750a4"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="타임 캡슐 생성"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ★ 하단 네비게이션 바(아이콘 4개)는 외부 레이아웃에서 관리하므로 삭제했습니다 ★ -->
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
