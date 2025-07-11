@@ -95,7 +95,7 @@
                             android:paddingLeft="16dp"
                             android:paddingRight="32dp"
                             android:paddingVertical="16dp"
-                            android:textColor="#AD99C1"
+                            android:textColor="#FFFFFF"
                             android:textSize="16sp" />
                     </LinearLayout>
 
@@ -127,7 +127,7 @@
                             android:inputType="textMultiLine"
                             android:maxLines="6"
                             android:padding="16dp"
-                            android:textColor="#AD99C1"
+                            android:textColor="#FFFFFF"
                             android:textSize="16sp" />
                     </LinearLayout>
 
@@ -159,7 +159,7 @@
                             android:inputType="textMultiLine"
                             android:maxLines="3"
                             android:padding="16dp"
-                            android:textColor="#AD99C1"
+                            android:textColor="#FFFFFF"
                             android:textSize="16sp" />
                     </LinearLayout>
 
@@ -255,7 +255,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="08/17/2025"
-                                    android:textColor="#1D1B20"
+                                    android:textColor="#FFFFFF"
                                     android:textSize="16sp"
                                     android:layout_marginBottom="13dp"
                                     android:layout_marginEnd="160dp"
@@ -389,29 +389,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:background="#191121"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="21dp"
-                android:background="#191121">
+                android:paddingVertical="21dp">
 
-                <LinearLayout
+                <!-- ❗️Button 하나만 두고 바로 id 지정 -->
+                <Button
                     android:id="@+id/btnCreateCapsule"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/cr100b6750a4"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
                     android:paddingHorizontal="24dp"
-                    android:paddingVertical="16dp">
-
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="타임 캡슐 생성"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:paddingVertical="16dp"
+                    android:text="타임 캡슐 생성"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <!-- ★ 하단 네비게이션 바(아이콘 4개)는 외부 레이아웃에서 관리하므로 삭제했습니다 ★ -->
