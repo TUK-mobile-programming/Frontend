@@ -1,4 +1,4 @@
-package com.example.a1.capsule        // ← 패키지 맞춰 주세요
+package com.example.a1.capsule
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a1.R
+import com.example.a1.repository.CapsuleRepository
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
@@ -16,17 +17,16 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
-import java.time.LocalDate
 
 class CapsuleFragment : Fragment() {
 
-    // ───────── 지도 ─────────
     private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: CapsuleAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 실제 Client-ID 로 교체
         NaverMapSdk.getInstance(requireContext()).client =
             NaverMapSdk.NaverCloudPlatformClient("xfk2s2l1qt")
     }
@@ -34,57 +34,62 @@ class CapsuleFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val v = inflater.inflate(R.layout.fragment_capsule, container, false)
+        val view = inflater.inflate(R.layout.fragment_capsule, container, false)
 
-        // MapView
-        mapView = v.findViewById(R.id.naverMapView)
+        mapView = view.findViewById(R.id.naverMapView)
+        recyclerView = view.findViewById(R.id.capsuleRecyclerView)
+
         mapView.onCreate(savedInstanceState)
+        setupRecyclerView()
 
-        // RecyclerView
-        val recycler = v.findViewById<RecyclerView>(R.id.capsuleRecyclerView)
-        recycler.layoutManager = LinearLayoutManager(requireContext())
-        recycler.adapter = CapsuleAdapter(dummyCapsules())
-
-        return v
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMap()
+    }
 
+    // ───────── 지도 설정 ─────────
+    private fun setupMap() {
         mapView.getMapAsync { map ->
             naverMap = map
 
-            // 카메라 초기 위치
-            val cam = CameraUpdate.toCameraPosition(
+            // 초기 카메라 위치
+            val initialCamera = CameraUpdate.toCameraPosition(
                 CameraPosition(LatLng(37.5665, 126.9780), 14.0)
             )
-            map.moveCamera(cam)
+            map.moveCamera(initialCamera)
 
-            addDummyMarkers(map)
+            // 저장된 캡슐 기반 마커 추가
+            addCapsuleMarkers(map)
         }
     }
 
-    // ───────── 더미 데이터 ─────────
-    private fun dummyCapsules() = listOf(
-        Capsule("A 타임캡슐", "#가족",  LocalDate.of(2025, 12, 25)),
-        Capsule("B 타임캡슐", "#친구",  LocalDate.of(2026,  5,  1)),
-        Capsule("C 타임캡슐", "#혼자",  LocalDate.of(2030,  2, 18))
-    )
+    private fun addCapsuleMarkers(map: NaverMap) {
+        val capsules = CapsuleRepository.getAllCapsules()
 
-    private fun addDummyMarkers(map: NaverMap) {
-        val locs = listOf(
-            LatLng(37.5665, 126.9780) to "A 타임캡슐",
-            LatLng(37.5651, 126.9895) to "B 타임캡슐",
-            LatLng(37.5700, 126.9768) to "C 타임캡슐"
-        )
-        for ((loc, title) in locs) {
+        capsules.forEachIndexed { index, capsule ->
+            // 현재는 위치 정보 없으므로 더미 위치로 분산해서 배치
+            val lat = 37.5665 + (index * 0.001)
+            val lng = 126.9780 + (index * 0.001)
+
             Marker().apply {
-                position = loc
+                position = LatLng(lat, lng)
                 icon = MarkerIcons.BLACK
-                captionText = title
+                captionText = capsule.title
                 this.map = map
             }
         }
+    }
+
+    // ───────── 리스트 설정 ─────────
+    private fun setupRecyclerView() {
+        val capsules = CapsuleRepository.getAllCapsules()
+        adapter = CapsuleAdapter(capsules)
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = adapter
     }
 
     // ───────── MapView 라이프사이클 ─────────

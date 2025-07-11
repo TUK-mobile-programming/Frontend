@@ -4,6 +4,13 @@ import java.time.LocalDate
 
 data class Capsule(
     val title: String,
-    val tag:   String,
-    val openDate: LocalDate          // 개봉(목표) 날짜
+    val body: String,
+    val tags: String,
+    val mediaUri: String?,
+    val ddayMillis: Long?,
+    val condition: String?,
+    val isJoint: Boolean,
+
+    val latitude: Double? = null,
+    val longitude: Double?=null
 )

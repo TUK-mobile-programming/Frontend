@@ -1,6 +1,10 @@
 package com.example.a1
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,9 +12,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import com.example.a1.capsule.Capsule
 import com.example.a1.databinding.FragmentAddBinding
+import com.example.a1.repository.CapsuleRepository
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -20,67 +29,75 @@ class AddFragment : Fragment() {
     private var _binding: FragmentAddBinding? = null
     private val binding get() = _binding!!
 
-    /** 선택된 D-Day 날짜(밀리초) */
+    // ───────── 내부 상태 ─────────
+    private var selectedMediaUri: Uri? = null
     private var selectedDateMillis: Long? = null
+    private var currentLocation: Location? = null
 
-    /** 갤러리 결과 콜백 */
+    // ───────── Android Location ─────────
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val locationPerm = Manifest.permission.ACCESS_FINE_LOCATION
+    private val permRequestCode = 1001
+
+    // ───────── 갤러리 선택 ─────────
     private val mediaPicker =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                // 미디어가 선택되었을 때 처리 (예: 미리보기 추가 등)
-                Toast.makeText(requireContext(), "Media selected: $uri", Toast.LENGTH_SHORT).show()
+                selectedMediaUri = it
+                Toast.makeText(requireContext(), "미디어 선택됨: $it", Toast.LENGTH_SHORT).show()
             }
         }
 
+    // ──────────────────────────────────────────────────────────────────────
+    // ▲ 변수 끝  ▼ 라이프사이클
+    // ──────────────────────────────────────────────────────────────────────
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentAddBinding.inflate(inflater, container, false)
+
+        fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
+
         initUi()
+        requestLocation()       // ⬅ 최초 1회 시도
         return binding.root
     }
 
-    /**
-     * UI 리스너 및 기본 상태 설정
-     */
+    // ──────────────────────────────────────────────────────────────────────
+    // UI 초기화
+    // ──────────────────────────────────────────────────────────────────────
     private fun initUi() = with(binding) {
-
-        /* ───── 조건 설정 스위치 ───── */
-        switchCondition.setOnCheckedChangeListener { _, isChecked ->
-            etCondition.isVisible = isChecked
+        /* 조건 설정 on/off */
+        switchCondition.setOnCheckedChangeListener { _, checked ->
+            etCondition.isVisible = checked
         }
 
-        /* ───── D-Day 선택 ───── */
-        val dateClickListener = View.OnClickListener { showDatePicker() }
-        tvDday.setOnClickListener(dateClickListener)
-        btnPickDate.setOnClickListener(dateClickListener)
+        /* 날짜 선택 */
+        val dateClick = View.OnClickListener { showDatePicker() }
+        tvDday.setOnClickListener(dateClick)
+        btnPickDate.setOnClickListener(dateClick)
 
-        /* ───── 미디어 첨부 ───── */
-        btnAddMedia.setOnClickListener {
-            // 이미지/비디오 둘 다 선택 가능하도록 MIME type "*/*" 사용
-            mediaPicker.launch("image/* video/*")
-        }
+        /* 미디어 첨부 */
+        btnAddMedia.setOnClickListener { mediaPicker.launch("image/* video/*") }
 
-        /* ───── 타임 캡슐 생성 ───── */
+        /* 캡슐 생성 */
         btnCreateCapsule.setOnClickListener { createCapsule() }
     }
 
-    /**
-     * DatePickerDialog 표시
-     */
+    // ──────────────────────────────────────────────────────────────────────
+    // 날짜 다이얼로그
+    // ──────────────────────────────────────────────────────────────────────
     private fun showDatePicker() {
         val cal = Calendar.getInstance().apply {
             selectedDateMillis?.let { timeInMillis = it }
         }
-
         DatePickerDialog(
             requireContext(),
-            { _, year, month, dayOfMonth ->
-                cal.set(year, month, dayOfMonth, 0, 0, 0)
+            { _, y, m, d ->
+                cal.set(y, m, d, 0, 0, 0)
                 selectedDateMillis = cal.timeInMillis
-                val fmt = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-                binding.tvDday.text = fmt.format(cal.time)
+                binding.tvDday.text = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(cal.time)
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
@@ -88,34 +105,63 @@ class AddFragment : Fragment() {
         ).show()
     }
 
-    /**
-     * 데이터 검증 & 저장(예시)
-     */
+    // ──────────────────────────────────────────────────────────────────────
+    // 위치 권한 + 값 요청
+    // ──────────────────────────────────────────────────────────────────────
+    @SuppressLint("MissingPermission")
+    private fun requestLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), locationPerm)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(locationPerm), permRequestCode)
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            currentLocation = loc      // loc == null 일 수 있음
+        }
+    }
+
+    /** 권한 요청 결과 */
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        if (requestCode == permRequestCode &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            requestLocation()   // 권한 허용 → 다시 시도
+        } else {
+            Toast.makeText(requireContext(), "위치 권한이 거부되어 위치가 저장되지 않습니다", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // 캡슐 생성
+    // ──────────────────────────────────────────────────────────────────────
     private fun createCapsule() = with(binding) {
         val title = etTitle.text.toString().trim()
-        val body = etBody.text.toString().trim()
-        val tags = etTag.text.toString().trim()
-        val conditionText = etCondition.text.toString().trim()
-        val isJoint = switchJoint.isChecked
+        val body  = etBody.text.toString().trim()
 
-        if (title.isEmpty()) {
-            etTitle.error = "제목을 입력하세요"
-            return
-        }
-        if (body.isEmpty()) {
-            etBody.error = "내용을 입력하세요"
-            return
-        }
+        if (title.isEmpty()) { etTitle.error = "제목을 입력하세요"; return }
+        if (body .isEmpty()) { etBody .error = "내용을 입력하세요"; return }
 
-        // TODO: 저장 로직(뷰모델 또는 DB)으로 전달
+        val capsule = Capsule(
+            title      = title,
+            body       = body,
+            tags       = etTag.text.toString().trim(),
+            mediaUri   = selectedMediaUri?.toString(),
+            ddayMillis = selectedDateMillis,
+            condition  = if (switchCondition.isChecked) etCondition.text.toString().trim() else null,
+            isJoint    = switchJoint.isChecked,
+            latitude   = currentLocation?.latitude,
+            longitude  = currentLocation?.longitude
+        )
+
+        CapsuleRepository.addCapsule(capsule)
         Toast.makeText(requireContext(), "캡슐이 생성되었습니다!", Toast.LENGTH_SHORT).show()
-
-        // 예시로 화면 종료
         requireActivity().supportFragmentManager.popBackStack()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+    // ──────────────────────────────────────────────────────────────────────
+    override fun onDestroyView() { super.onDestroyView(); _binding = null }
 }
