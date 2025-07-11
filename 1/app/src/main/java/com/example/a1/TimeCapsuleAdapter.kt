@@ -42,7 +42,7 @@ class TimeCapsuleAdapter(private val timeCapsules: List<TimeCapsule>) :
     }
 
     class TimeCapsuleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.item_image)
+        val imageView: ImageView = itemView.findViewById(R.id.listed_item_image)
         val titleTextView: TextView = itemView.findViewById(R.id.item_title)
         val dateTextView: TextView = itemView.findViewById(R.id.item_date)
     }

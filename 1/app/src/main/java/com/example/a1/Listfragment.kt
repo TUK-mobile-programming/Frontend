@@ -1,4 +1,4 @@
-package com.example.a1 // 본인의 패키지 이름으로 변경해주세요.
+package com.example.a1
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.LinearLayoutManager // RecyclerView를 위한 LayoutManager 임포트
-import androidx.recyclerview.widget.RecyclerView // RecyclerView 자체 임포트
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class Listfragment : Fragment() {
 
@@ -28,7 +28,8 @@ class Listfragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View?
+    {
         // fragment_list.xml 레이아웃을 인플레이트합니다.
         val view = inflater.inflate(R.layout.fragment_list, container, false)
 
@@ -67,6 +68,15 @@ class Listfragment : Fragment() {
         timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 1", "Opened on 2024-06-01"))
         timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 2", "Opened on 2024-05-20"))
         timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 3", "Opened on 2024-04-10"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "호날두와 함께한 여행", "Opened on 2025-07-10"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 4", "Opened on 2024-06-01"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 5", "Opened on 2024-05-20"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 6", "Opened on 2024-04-10"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "메시와 함께한 여행", "Opened on 2025-07-10"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 7", "Opened on 2024-06-01"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 8", "Opened on 2024-05-20"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 9", "Opened on 2024-04-10"))
+        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "음바페와 함께한 여행", "Opened on 2025-07-10"))
 
 
         // ----------------------------------------------------
