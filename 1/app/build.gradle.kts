@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
 }
 
 android {
@@ -52,4 +53,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    //네이버 지도 api
+    implementation("com.naver.maps:map-sdk:3.21.0")
 }
