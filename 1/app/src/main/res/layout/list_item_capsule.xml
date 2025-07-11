@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:background="#191121"
+    android:background="@drawable/ripple_background"
     android:paddingVertical="8dp"
     android:paddingHorizontal="16dp"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="horizontal">
 
     <ImageView

@@ -3,4 +3,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="hyunpee1">#1F1C26</color>
+    <color name="list_item_default_background">#191121</color>
 </resources>

@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("com.google.android.material:material:1.12.0")
     implementation(libs.androidx.constraintlayout)
