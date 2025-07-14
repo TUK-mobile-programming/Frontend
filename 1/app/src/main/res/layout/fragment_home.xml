@@ -1,15 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_home"
     tools:context=".Homefragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:orientation="vertical"
+        android:background="#191121">
+
+        <!-- ───── 스크롤 영역 ───── -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <!-- 앱/섹션 제목 -->
+                <TextView
+                    android:id="@+id/tvSectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="티노캡슐"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="12dp" />
+
+                <!-- 캡슐 이름 -->
+                <TextView
+                    android:id="@+id/tvCapsuleName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="A 타임캡슐"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:paddingBottom="16dp" />
+
+                <!-- 이미지 -->
+                <ImageView
+                    android:id="@+id/ivCapsulePhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:layout_marginBottom="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/hourglass1" />
+
+                <!-- D-Day -->
+                <TextView
+                    android:id="@+id/tvDDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="D-Day 101"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:paddingBottom="40dp" />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ───── 하단 바 + 좌우 네비게이션 버튼 ───── -->
+        <!-- ... (위쪽은 그대로) -->
+        <!-- ========= 하단 바 + 좌우 네비게이션 버튼 + 인디케이터 ========= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            android:background="#1A1221"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- ◀ 왼쪽 화살표 -->
+            <ImageButton
+                android:id="@+id/btnPrev"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_media_previous" />
+
+            <!-- 페이지 인디케이터 : 0dp + weight=1 로 중앙 정렬 -->
+            <TextView
+                android:id="@+id/tvPageIndicator"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:gravity="center" />
+
+            <!-- ▶ 오른쪽 화살표 -->
+            <ImageButton
+                android:id="@+id/btnNext"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_media_next" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </FrameLayout>
