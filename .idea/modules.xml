@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Frontend.iml" filepath="$PROJECT_DIR$/.idea/Frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/현프여행1.iml" filepath="$PROJECT_DIR$/.idea/modules/현프여행1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/현프여행1.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/현프여행1.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/현프여행1.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/현프여행1.app.androidTest.iml" />
