@@ -13,4 +13,5 @@
     <color name="green_500">#4CAF50</color>    <!-- 조건 설정 O -->
     <color name="gray_400">#BDBDBD</color>     <!-- 기본 (설정 X) -->
 
+    <color name="list_item_default_background">#191121</color>
 </resources>

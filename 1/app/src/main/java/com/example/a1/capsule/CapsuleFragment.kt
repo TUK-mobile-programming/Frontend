@@ -1,4 +1,3 @@
-// CapsuleFragment.kt
 package com.example.a1.capsule
 
 import android.Manifest
@@ -12,8 +11,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.activityViewModels
 import com.example.a1.R
-import com.example.a1.repository.CapsuleRepository
+import com.example.a1.viewmodel.CapsuleViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
@@ -21,17 +21,23 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
 
+//2025-07-14 14:14
+
 class CapsuleFragment : Fragment() {
 
     /* ---------- UI ---------- */
     private lateinit var mapView : MapView
     private lateinit var adapter : CapsuleAdapter
     private lateinit var recycler: RecyclerView
+    private val currentMarkers = mutableListOf<Marker>() // **[수정]** 마커 리스트 추가
 
     /* ---------- 위치 ---------- */
     private lateinit var fused  : FusedLocationProviderClient
     private var currentLocation : Location? = null
     private val OPEN_RADIUS_M   = 50      // 반경 50 m 이내에서만 열림
+
+    /* ---------- ViewModel ---------- */
+    private val capsuleViewModel: CapsuleViewModel by activityViewModels()
 
     /* ---------- 라이프사이클 ---------- */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +58,7 @@ class CapsuleFragment : Fragment() {
 
         setupRecycler()
         mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync { addMarkers(it) }
+        // mapView.getMapAsync { addMarkers(it) } // 이 호출은 ViewModel 관찰 블록으로 이동했습니다.
 
         return v
     }
@@ -82,31 +88,42 @@ class CapsuleFragment : Fragment() {
 
     /* ───────── RecyclerView ───────── */
     private fun setupRecycler() {
-        adapter = CapsuleAdapter(CapsuleRepository.getAllCapsules()) { tryOpenCapsule(it) }
+        adapter = CapsuleAdapter(mutableListOf()) { tryOpenCapsule(it) }
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter       = adapter
+
+        // ViewModel의 allCapsules LiveData를 관찰하여 데이터가 변경될 때마다 RecyclerView 업데이트
+        capsuleViewModel.allCapsules.observe(viewLifecycleOwner) { capsules ->
+            adapter.updateData(capsules) // CapsuleAdapter에 updateData(List<Capsule>) 함수가 필요
+            mapView.getMapAsync { naverMap -> addMarkers(naverMap) } // 캡슐 목록이 변경되면 지도 마커도 업데이트
+        }
     }
 
     /* ───────── 지도 & 마커 ───────── */
     private fun addMarkers(map: NaverMap) {
-        // 마커 표시
-        CapsuleRepository.getAllCapsules()
-            .filter { it.latitude != null && it.longitude != null }
-            .forEach { cap ->
+        // **[수정]** 기존 마커 모두 제거: 각 마커의 map 속성을 null로 설정
+        currentMarkers.forEach { it.map = null } // 모든 마커를 지도에서 제거
+        currentMarkers.clear() // 리스트도 비웁니다.
+
+        // ViewModel의 allCapsules에서 데이터를 가져와 마커 추가
+        capsuleViewModel.allCapsules.value
+            ?.filter { it.latitude != null && it.longitude != null }
+            ?.forEach { cap ->
                 Marker().apply {
                     position    = LatLng(cap.latitude!!, cap.longitude!!)
                     icon        = MarkerIcons.BLACK
                     captionText = cap.title
-                    this.map    = map
+                    this.map    = map // 지도에 마커를 추가
+                    currentMarkers.add(this) // **[추가]** 리스트에 마커 저장
                 }
             }
 
-        // 카메라 초기 위치 = 좌표가 있는 첫 캡슐 → 없으면 서울시청
-        val first = CapsuleRepository.getAllCapsules()
-            .firstOrNull { it.latitude != null && it.longitude != null }
+        // 카메라 초기 위치 설정도 ViewModel 데이터 기반
+        val first = capsuleViewModel.allCapsules.value
+            ?.firstOrNull { it.latitude != null && it.longitude != null }
 
         val target = first?.let { LatLng(it.latitude!!, it.longitude!!) }
-            ?: LatLng(37.5665, 126.9780)         // 기본 좌표
+            ?: LatLng(37.5665, 126.9780)         // 기본 좌표 (서울시청)
 
         map.moveCamera(CameraUpdate.scrollTo(target))
     }

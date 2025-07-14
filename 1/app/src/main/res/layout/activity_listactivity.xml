@@ -36,15 +36,15 @@
                         android:background="#14191E"
                         android:padding="16dp"
                         android:orientation="horizontal">
-                        <ImageView
-                            android:id="@+id/rb2e1bfv7qlh"
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/listed_back2"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginVertical="12dp"
                             android:layout_marginEnd="24dp"
-                            android:src="@mipmap/ic_launcher"
+                            android:src="@drawable/arrow_back"
                             android:scaleType="fitXY"
-                            />
+                            app:tint="#ffffff" />
                         <TextView
                             android:id="@+id/r00i3eu6ehztwd"
                             android:textColor="#FFFFFF"
@@ -56,7 +56,7 @@
                             />
                     </LinearLayout>
                     <TextView
-                        android:id="@+id/r4jl26uviswr"
+                        android:id="@+id/listed_title"
                         android:textColor="#FFFFFF"
                         android:textSize="22sp"
                         android:textStyle="bold"
@@ -67,10 +67,10 @@
                         android:text="보관 중인 타임캡슐 이름"
                         />
                     <ImageView
-                        android:id="@+id/r9ljk3zxn6r8"
+                        android:id="@+id/list_image"
                         android:layout_width="match_parent"
                         android:layout_height="284dp"
-                        android:src="@mipmap/ic_launcher"
+                        android:src="@drawable/sampleimage"
                         android:scaleType="fitXY"
                         />
                     <LinearLayout
@@ -79,39 +79,41 @@
                         android:layout_height="wrap_content"
                         android:padding="16dp"
                         android:orientation="horizontal">
+
                         <LinearLayout
                             android:id="@+id/rdwfly8y1fig"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingVertical="21dp"
                             android:layout_marginEnd="24dp"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:paddingVertical="21dp">
+
                             <LinearLayout
                                 android:id="@+id/r9dsn69i8j5o"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_horizontal"
-                                android:paddingBottom="1dp"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+                                android:paddingBottom="1dp">
+
                                 <TextView
-                                    android:id="@+id/r7v59zp19cpi"
-                                    android:textColor="#9BADBF"
-                                    android:textSize="14sp"
-                                    android:layout_height="wrap_content"
+                                    android:id="@+id/start123"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
                                     android:text="Start Date"
-                                    />
+                                    android:textColor="#9BADBF"
+                                    android:textSize="14sp" />
                             </LinearLayout>
+
                             <TextView
-                                android:id="@+id/r3xfha9wdhsv"
-                                android:textColor="#FFFFFF"
-                                android:textSize="14sp"
-                                android:layout_marginBottom="1dp"
-                                android:layout_marginEnd="39dp"
+                                android:id="@+id/start_date"
+                                android:layout_width="123dp"
                                 android:layout_height="wrap_content"
-                                android:layout_width="33dp"
+                                android:layout_marginEnd="39dp"
+                                android:layout_marginBottom="1dp"
                                 android:text="July 1, 2023"
-                                />
+                                android:textColor="#FFFFFF"
+                                android:textSize="14sp" />
                         </LinearLayout>
                         <LinearLayout
                             android:id="@+id/r0h1u8b09j27j"
@@ -121,7 +123,7 @@
                             android:paddingVertical="21dp"
                             android:orientation="vertical">
                             <TextView
-                                android:id="@+id/rtw3x4wg6jsk"
+                                android:id="@+id/end123"
                                 android:textColor="#9BADBF"
                                 android:textSize="14sp"
                                 android:layout_marginBottom="10dp"
@@ -130,7 +132,7 @@
                                 android:text="End Date"
                                 />
                             <TextView
-                                android:id="@+id/rcnbse5vzia"
+                                android:id="@+id/end_date"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp"
                                 android:layout_marginBottom="9dp"
@@ -149,7 +151,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="Reviews"
+                        android:text="타임캡슐 이야기"
                         />
                 </LinearLayout>
                 <LinearLayout
@@ -158,13 +160,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <TextView
-                        android:id="@+id/r06qjlpfmidtq"
+                        android:id="@+id/listed_text"
                         android:layout_width="match_parent"
                         android:layout_height="144dp"
                         android:background="#283542"
                         android:layout_marginVertical="12dp"
                         android:layout_marginHorizontal="16dp"
-                        android:text="여기에 텍스트를 입력하세요" android:textColor="#FFFFFF" android:gravity="center" />
+                        android:text="여기에 텍스트를 입력하세요"
+                        android:textColor="#FFFFFF"
+                        android:gravity="center" />
                     <LinearLayout
                         android:id="@+id/rb720662xzkl"
                         android:layout_width="match_parent"
