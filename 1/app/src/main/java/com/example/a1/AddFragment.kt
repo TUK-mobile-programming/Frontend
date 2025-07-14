@@ -1,3 +1,4 @@
+// AddFragment.kt (수정)
 package com.example.a1
 
 import android.Manifest
@@ -15,9 +16,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels // <-- 이 줄을 추가합니다. (필수)
 import com.example.a1.capsule.Capsule
 import com.example.a1.databinding.FragmentAddBinding
-import com.example.a1.repository.CapsuleRepository
+// import com.example.a1.repository.CapsuleRepository // <-- 이 줄은 더 이상 필요 없으니 제거 또는 주석 처리
+import com.example.a1.viewmodel.CapsuleViewModel // <-- 이 줄을 추가합니다. (필수)
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
@@ -32,6 +35,7 @@ class AddFragment : Fragment() {
     // ───────── 내부 상태 ─────────
     private var selectedMediaUri: Uri? = null
     private var selectedDateMillis: Long? = null
+    private var selectedStartDateMillis: Long? = null
     private var currentLocation: Location? = null
 
     // ───────── Android Location ─────────
@@ -47,6 +51,10 @@ class AddFragment : Fragment() {
                 Toast.makeText(requireContext(), "미디어 선택됨: $it", Toast.LENGTH_SHORT).show()
             }
         }
+
+    // ───────── ViewModel 인스턴스 ─────────
+    // 액티비티 범위의 ViewModel을 가져와 ListFragment와 공유합니다.
+    private val capsuleViewModel: CapsuleViewModel by activityViewModels() // <-- 이 부분을 추가합니다. (필수)
 
     // ──────────────────────────────────────────────────────────────────────
     // ▲ 변수 끝  ▼ 라이프사이클
@@ -73,10 +81,11 @@ class AddFragment : Fragment() {
             etCondition.isVisible = checked
         }
 
-        /* 날짜 선택 */
-        val dateClick = View.OnClickListener { showDatePicker() }
-        tvDday.setOnClickListener(dateClick)
-        btnPickDate.setOnClickListener(dateClick)
+        /* 날짜 선택 (ddayMillis) */
+        // 시작 날짜도 선택하게 하려면 여기에 추가 UI 및 로직 필요
+        val ddayClick = View.OnClickListener { showDatePicker(isStartDate = false) } // isStartDate 인자 추가
+        tvDday.setOnClickListener(ddayClick)
+        btnPickDate.setOnClickListener(ddayClick)
 
         /* 미디어 첨부 */
         btnAddMedia.setOnClickListener { mediaPicker.launch("image/* video/*") }
@@ -86,24 +95,37 @@ class AddFragment : Fragment() {
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // 날짜 다이얼로그
+    // 날짜 다이얼로그 (isStartDate 매개변수 추가)
     // ──────────────────────────────────────────────────────────────────────
-    private fun showDatePicker() {
+    // AddFragment에 시작 날짜 선택 UI가 추가되었다면 이 함수를 사용
+    private fun showDatePicker(isStartDate: Boolean) {
+        val currentMillis = if (isStartDate) selectedStartDateMillis else selectedDateMillis
+        val targetTextView = if (isStartDate) binding.tvDday else binding.tvDday // <-- tvDday는 ddayMillis용. 시작 날짜용 TextView를 추가해야 함.
+
         val cal = Calendar.getInstance().apply {
-            selectedDateMillis?.let { timeInMillis = it }
+            currentMillis?.let { timeInMillis = it }
         }
         DatePickerDialog(
             requireContext(),
             { _, y, m, d ->
                 cal.set(y, m, d, 0, 0, 0)
-                selectedDateMillis = cal.timeInMillis
-                binding.tvDday.text = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(cal.time)
+                val formattedDate = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(cal.time)
+
+                if (isStartDate) {
+                    selectedStartDateMillis = cal.timeInMillis
+                    // binding.tvStartDate.text = formattedDate // <-- 시작 날짜용 TextView가 있다면 사용
+                    // 현재 코드에는 시작 날짜 선택 UI가 없으므로 이 부분은 주석 처리 또는 제거 필요
+                } else {
+                    selectedDateMillis = cal.timeInMillis
+                    binding.tvDday.text = formattedDate
+                }
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
             cal.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
+
 
     // ──────────────────────────────────────────────────────────────────────
     // 위치 권한 + 값 요청
@@ -154,12 +176,15 @@ class AddFragment : Fragment() {
             condition  = if (switchCondition.isChecked) etCondition.text.toString().trim() else null,
             isJoint    = switchJoint.isChecked,
             latitude   = currentLocation?.latitude,
-            longitude  = currentLocation?.longitude
+            longitude  = currentLocation?.longitude,
+            startDateMillis = selectedStartDateMillis
         )
 
-        CapsuleRepository.addCapsule(capsule)
+        // 더 이상 CapsuleRepository에 직접 추가하지 않고 ViewModel을 통해 추가합니다.
+        capsuleViewModel.addCapsule(capsule) // <-- 이 줄이 핵심입니다!
+
         Toast.makeText(requireContext(), "캡슐이 생성되었습니다!", Toast.LENGTH_SHORT).show()
-        requireActivity().supportFragmentManager.popBackStack()
+        requireActivity().supportFragmentManager.popBackStack() // 이전 화면으로 돌아갑니다.
     }
 
     // ──────────────────────────────────────────────────────────────────────

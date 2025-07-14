@@ -1,3 +1,4 @@
+// Listfragment.kt
 package com.example.a1
 
 import android.content.Intent
@@ -9,113 +10,81 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.activityViewModels
+import com.example.a1.viewmodel.CapsuleViewModel
+import com.example.a1.capsule.Capsule // Capsule 데이터 클래스 import 확인!
+import android.widget.Toast // 오류 메시지 테스트용으로 추가
 
 class Listfragment : Fragment() {
 
-    // RecyclerView와 Adapter 변수 선언
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TimeCapsuleAdapter // TimeCapsuleAdapter 사용 선언
-    private lateinit var timeCapsuleList: MutableList<TimeCapsule> // 데이터 리스트
+    private lateinit var adapter: TimeCapsuleAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Fragment 생성 시 필요한 초기화 작업 (여기서는 arguments 처리)
-        arguments?.let {
-            // 이 부분은 현재 예시에서는 사용되지 않지만, 필요에 따라 활용 가능
-        }
-    }
+    private val capsuleViewModel: CapsuleViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View?
-    {
-        // fragment_list.xml 레이아웃을 인플레이트합니다.
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_list, container, false)
 
-        // ----------------------------------------------------
-        // 1. 첫 번째 더미 리스트 (first_list)에 대한 클릭 리스너 설정
-        // ----------------------------------------------------
+        // 첫 번째 더미 리스트 (first_list) 클릭 리스너 (이 부분은 상세 데이터 전달과 무관)
         val firstListLayout: LinearLayout = view.findViewById(R.id.first_list)
         firstListLayout.setOnClickListener {
-            // 클릭 시 ListActivity로 이동하는 예시 Intent
             val intent = Intent(activity, Listactivity::class.java).apply {
-                putExtra("title", "여름 휴가")
-                putExtra("openDate", "Opened on 2024-07-20 (Dummy)")
+                putExtra("CAPSULE_TITLE", "여름 휴가")
+                putExtra("CAPSULE_BODY", "이것은 더미 캡슐의 본문입니다.") // 더미 본문 추가
+                putExtra("CAPSULE_IMAGE_URI", "") // 더미 이미지가 없다면 비워두세요
+                putExtra("CAPSULE_START_DATE_MILLIS", -1L)
+                putExtra("CAPSULE_DDAY_MILLIS", -1L)
             }
             startActivity(intent)
         }
 
-        // ----------------------------------------------------
-        // 2. RecyclerView 초기화 및 설정
-        // ----------------------------------------------------
-        // RecyclerView를 XML 레이아웃에서 찾습니다.
-        // ID는 fragment_list.xml에 정의된 time_capsule_recycler_view 여야 합니다.
         recyclerView = view.findViewById(R.id.time_capsule_recycler_view)
-
-        // LinearLayoutManager를 설정하여 아이템들이 수직으로 나열되도록 합니다.
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // ----------------------------------------------------
-        // 3. 데이터 리스트 초기화 및 샘플 데이터 추가
-        // ----------------------------------------------------
-        timeCapsuleList = mutableListOf()
-        // 여기에 RecyclerView에 표시하고 싶은 실제 TimeCapsule 데이터를 추가합니다.
-        // 첫 번째 더미 항목 "여름 휴가"는 포함하지 않습니다.
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "첫 번째 여행", "Opened on 2024-07-15"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "졸업식 날", "Opened on 2024-07-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "새로운 추억", "Opened on 2025-01-01"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 1", "Opened on 2024-06-01"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 2", "Opened on 2024-05-20"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 3", "Opened on 2024-04-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "호날두와 함께한 여행", "Opened on 2025-07-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 4", "Opened on 2024-06-01"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 5", "Opened on 2024-05-20"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 6", "Opened on 2024-04-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "메시와 함께한 여행", "Opened on 2025-07-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 7", "Opened on 2024-06-01"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 8", "Opened on 2024-05-20"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "추가된 아이템 9", "Opened on 2024-04-10"))
-        timeCapsuleList.add(TimeCapsule(R.mipmap.ic_launcher, "음바페와 함께한 여행", "Opened on 2025-07-10"))
+        adapter = TimeCapsuleAdapter(mutableListOf())
 
-
-        // ----------------------------------------------------
-        // 4. TimeCapsuleAdapter 초기화 및 RecyclerView에 설정
-        // ----------------------------------------------------
-        adapter = TimeCapsuleAdapter(timeCapsuleList) // TimeCapsuleAdapter 인스턴스 생성
-        recyclerView.adapter = adapter // RecyclerView에 어댑터 설정
-
-        // ----------------------------------------------------
-        // 5. RecyclerView 아이템 클릭 리스너 설정 (선택 사항)
-        //    각 list_item_capsule 항목 클릭 시 동작을 정의합니다.
-        // ----------------------------------------------------
         adapter.setOnItemClickListener(object : TimeCapsuleAdapter.OnItemClickListener {
             override fun onItemClick(position: Int, item: TimeCapsule) {
-                // 클릭된 아이템의 데이터를 가지고 ListActivity로 이동
-                val intent = Intent(activity, Listactivity::class.java).apply {
-                    putExtra("title", item.title)
-                    putExtra("openDate", item.openDate)
-                    // item.imageResId 등 다른 데이터도 필요하다면 추가할 수 있습니다.
+                // TimeCapsule에서 원본 Capsule 객체를 찾습니다.
+                // 이전에 'startDateMillis' 오류가 났던 부분입니다.
+                // TimeCapsule과 Capsule 간의 매핑을 위해 고유 ID를 사용하는 것이 가장 좋습니다.
+                // 현재는 title과 mediaUri를 기준으로 찾습니다.
+                val clickedOriginalCapsule = capsuleViewModel.allCapsules.value?.find { capsule ->
+                    capsule.title == item.title && capsule.mediaUri == item.mediaUri
+                    // 만약 TimeCapsule에 id 필드가 있다면: capsule.id == item.id 로 변경 (더 정확함)
                 }
-                startActivity(intent)
+
+                if (clickedOriginalCapsule != null) {
+                    val intent = Intent(activity, Listactivity::class.java).apply {
+                        // **여기서 원본 clickedOriginalCapsule 객체의 필드를 Intent에 담습니다.**
+                        // `activity_listactivity.xml`의 ID와 매칭될 키 이름을 사용합니다.
+                        putExtra("CAPSULE_TITLE", clickedOriginalCapsule.title) // listed_title
+                        putExtra("CAPSULE_BODY", clickedOriginalCapsule.body)   // listed_text
+                        putExtra("CAPSULE_IMAGE_URI", clickedOriginalCapsule.mediaUri) // list_image
+
+                        // 날짜는 Long 타입 밀리초로 전달하고 Listactivity에서 포맷팅합니다.
+                        putExtra("CAPSULE_START_DATE_MILLIS", clickedOriginalCapsule.startDateMillis ?: -1L) // start_date
+                        putExtra("CAPSULE_DDAY_MILLIS", clickedOriginalCapsule.ddayMillis ?: -1L)     // end_date
+
+                        // TODO: 필요하다면 다른 Capsule 필드(tags, condition 등)도 추가 전달
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(context, "오류: 캡슐 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         })
+        recyclerView.adapter = adapter
 
-        // 인플레이트된 뷰를 반환합니다.
+        capsuleViewModel.capsules.observe(viewLifecycleOwner) { capsules ->
+            adapter.updateData(capsules)
+        }
+
         return view
     }
 
-    // Fragment 인스턴스 생성을 위한 companion object (필요한 경우)
-    companion object {
-        // TODO: 이 newInstance 메서드는 현재 사용되지 않으므로 필요하지 않으면 제거하거나,
-        // Fragment에 인자를 전달할 때 사용됩니다.
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            Listfragment().apply {
-                arguments = Bundle().apply {
-                    // putString(ARG_PARAM1, param1)
-                    // putString(ARG_PARAM2, param2)
-                }
-            }
-    }
+    // ... (companion object 등 나머지 코드는 동일)
 }

@@ -1,16 +1,15 @@
+// com.example.a1.capsule.Capsule.kt
 package com.example.a1.capsule
-
-import java.time.LocalDate
 
 data class Capsule(
     val title: String,
-    val body: String,
-    val tags: String,
-    val mediaUri: String?,
-    val ddayMillis: Long?,
+    val body: String,             // <-- 이 필드가 있는지 확인 (String)
+    val tags: String?,
     val condition: String?,
+    val ddayMillis: Long?,
+    val mediaUri: String?,       // <-- 이 필드가 있는지 확인 (String?)
+    val latitude: Double?,
+    val longitude: Double?,
     val isJoint: Boolean,
-
-    val latitude: Double? = null,
-    val longitude: Double?=null
-)
+    val startDateMillis: Long?
+) : java.io.Serializable

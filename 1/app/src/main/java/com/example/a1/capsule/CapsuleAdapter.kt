@@ -16,13 +16,14 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
 /**
- *  캡슐 목록을 표시하는 RecyclerView Adapter
+ * 캡슐 목록을 표시하는 RecyclerView Adapter
  *
- *  @param items   처음에 표시할 캡슐 리스트
- *  @param onClick 아이템 클릭 시 호출되는 람다
+ * @param items   처음에 표시할 캡슐 리스트
+ * @param onClick 아이템 클릭 시 호출되는 람다
  */
 class CapsuleAdapter(
-    private var items: List<Capsule>,
+    // **[수정]**: 'List'를 'MutableList'로, 'val'을 'var'로 변경
+    private var items: MutableList<Capsule>,
     private val onClick: (Capsule) -> Unit
 ) : RecyclerView.Adapter<CapsuleAdapter.VH>() {
 
@@ -65,6 +66,14 @@ class CapsuleAdapter(
                 ContextCompat.getColor(itemView.context, colorRes),
                 android.graphics.PorterDuff.Mode.SRC_IN
             )
+            // TODO: 이미지 로드 로직 (mediaUri가 Capsule에 있다면 Glide 등으로 추가)
+            // if (!item.mediaUri.isNullOrEmpty()) {
+            //     Glide.with(itemView.context)
+            //         .load(Uri.parse(item.mediaUri))
+            //         .into(imgCapsuleIcon)
+            // } else {
+            //     imgCapsuleIcon.setImageResource(R.drawable.default_capsule_image)
+            // }
         }
     }
 
@@ -72,7 +81,7 @@ class CapsuleAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_capsule, parent, false)
+            .inflate(R.layout.item_capsule, parent, false) // <-- 레이아웃 ID 확인
         return VH(view)
     }
 
@@ -83,8 +92,10 @@ class CapsuleAdapter(
     override fun getItemCount(): Int = items.size
 
     /* ------------- 외부에서 리스트 갱신 ------------- */
-    fun submitList(newItems: List<Capsule>) {
-        items = newItems
-        notifyDataSetChanged()
+    // **[수정]**: 'submitList'를 'updateData'로 변경하고, 로직을 clear/addAll로 변경
+    fun updateData(newItems: List<Capsule>) {
+        items.clear()          // 기존 목록을 지웁니다.
+        items.addAll(newItems) // 새 목록을 추가합니다.
+        notifyDataSetChanged() // RecyclerView에 데이터가 변경되었음을 알립니다.
     }
 }
