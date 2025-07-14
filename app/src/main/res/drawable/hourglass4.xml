@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- ■ 상단 모래 75 %  ─ 원본보다 3px 내려서 ¾ 상태 -->
+    <path
+        android:fillColor="#A020F0"
+        android:pathData="
+            M21,17
+            L27,17
+            L25,20
+            L23,20
+            Z" />
+
+    <!-- ■ 목 부분 모래(가느다란 흐름) : 시작 y좌표도 17로 맞춤 -->
+
+
+    <!-- ■ 하단 모래 25 %  ─ 바닥에서 4px만 채운 작은 삼각형 -->
+    <path
+        android:fillColor="#A020F0"
+        android:pathData="
+            M20,30
+            L28,30
+            L32,40
+            L16,40
+            Z" />
+
+    <!-- ■ 유리 외곽선 : 원본 그대로 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="
+            M12,4      H36          V8
+            H32        L25,20       V24
+            L32,40     H36          V44
+            H12        V40          H16
+            L23,24     V20          L16,8
+            H12        Z" />
+</vector>

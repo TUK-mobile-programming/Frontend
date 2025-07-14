@@ -1,0 +1,14 @@
+# Android local settings
+/local.properties
+
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+local.properties
+
+# Mac 시스템 파일
+.DS_Store
