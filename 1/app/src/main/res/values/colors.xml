@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 기본 색 -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- 앱 배경용 (기존) -->
+    <color name="hyunpee1">#1F1C26</color>
+
+    <!-- ───────── 캡슐(알약) 표시용 팔레트 ───────── -->
+    <color name="purple_500">#6750A4</color>   <!-- 공동 캡슐 -->
+    <color name="green_500">#4CAF50</color>    <!-- 조건 설정 O -->
+    <color name="gray_400">#BDBDBD</color>     <!-- 기본 (설정 X) -->
+
+</resources>

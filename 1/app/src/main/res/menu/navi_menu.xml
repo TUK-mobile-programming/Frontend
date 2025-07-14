@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homefragment"
+        android:title="홈"
+        android:icon="@drawable/home_image" />
+
+    <item
+        android:id="@+id/capsulefragment"
+        android:title="캡슐"
+        android:icon="@drawable/capsule_image" />
+
+    <item
+        android:id="@+id/addfragment"
+        android:title="추가"
+        android:icon="@drawable/add_image" />
+
+    <item
+        android:id="@+id/listfragment"
+        android:title="보관함"
+        android:icon="@drawable/list_image" />
+
+    <item
+        android:id="@+id/mypagefragment"
+        android:title="설정"
+        android:icon="@drawable/mypage_image" />
+
+</menu>

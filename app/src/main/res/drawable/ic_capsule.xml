@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <!-- 색상은 코드에서 setBackgroundResource 로 교체되므로 임시값 -->
-    <solid android:color="@color/gray_400"/>
-</shape>

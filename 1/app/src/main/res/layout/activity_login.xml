@@ -1,0 +1,96 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:background="#282828"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/rcboxgh8pqtw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="154dp"
+                android:layout_marginBottom="66dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/ryzfac9txk4r"
+                    android:textColor="#ffff"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="로그인" />
+            </LinearLayout>
+            <EditText
+                android:inputType="text"
+                android:hint="아이디"
+                android:id="@+id/id_input"
+                android:textColor="#000000"
+                android:textSize="12sp"
+                android:layout_marginBottom="30dp"
+                android:layout_marginHorizontal="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/login_2"
+                android:paddingVertical="18dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="28dp" />
+            <EditText
+                android:inputType="text"
+                android:hint="비밀번호"
+                android:id="@+id/password_input"
+                android:textColor="#000000"
+                android:textSize="12sp"
+                android:layout_marginBottom="67dp"
+                android:layout_marginHorizontal="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/login_2"
+                android:paddingVertical="18dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="24dp" />
+            <LinearLayout
+                android:id="@+id/login_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:background="@drawable/button_ripple"
+                android:paddingVertical="18dp"
+                android:layout_marginBottom="28dp"
+                android:layout_marginHorizontal="30dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/r6aunj7ycaon"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="로그인" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/r7sq0kdw9kta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_marginTop="16dp" android:orientation="vertical">
+                <TextView
+                    android:id="@+id/make_account"
+                    android:textColor="#ffff"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="51dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="계정이 없으신가요? 회원가입" />
+            </LinearLayout>
+        </LinearLayout>
+</LinearLayout>
