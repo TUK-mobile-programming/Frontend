@@ -1,0 +1,14 @@
+# Android local settings
+/local.properties
+
+# Gradle
+/.gradle
+/build
+**/build/
+
+# IDE
+.idea/
+/*.iml
+
+# OS
+.DS_Store
