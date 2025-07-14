@@ -2,13 +2,13 @@
 /local.properties
 
 # Gradle
-/.gradle
-/build
-**/build/
+.gradle/
+build/
 
-# IDE
+# Android Studio
 .idea/
-/*.iml
+*.iml
+local.properties
 
-# OS
+# Mac 시스템 파일
 .DS_Store
