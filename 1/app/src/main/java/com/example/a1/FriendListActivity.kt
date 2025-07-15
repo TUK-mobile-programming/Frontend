@@ -1,6 +1,5 @@
 package com.example.a1
 
-import CapsuleFragment
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.a1.capsule.CapsuleFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class FriendListActivity : AppCompatActivity() {
@@ -133,7 +133,7 @@ class FriendListActivity : AppCompatActivity() {
                     true
                 }
                 R.id.addfragment -> {
-                    startActivity(Intent(this, Addfragment::class.java))
+                    startActivity(Intent(this, AddFragment::class.java))
                     true
                 }
                 R.id.listfragment -> {
