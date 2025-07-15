@@ -1,6 +1,7 @@
 package com.example.a1.capsule
 
 import java.time.LocalDate
+import java.io.Serializable
 
 data class Capsule(
     val title: String,
@@ -13,4 +14,4 @@ data class Capsule(
 
     val latitude: Double? = null,
     val longitude: Double?=null
-)
+) : Serializable

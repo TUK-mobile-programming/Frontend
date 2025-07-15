@@ -1,77 +1,98 @@
 package com.example.a1
 
-import android.content.Intent // Intent 사용을 위해 import 합니다.
+import android.content.Intent // 이 줄을 추가합니다.
+import java.io.Serializable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout // LinearLayout을 사용하므로 import 합니다.
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.a1.capsule.Capsule
+import com.example.a1.capsule.CapsuleAdapter
+import com.example.a1.databinding.FragmentListBinding // fragment_list.xml에 대한 뷰 바인딩
+import com.example.a1.repository.CapsuleRepository
+import java.util.Calendar
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [Listfragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class Listfragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    // 뷰 바인딩 선언
+    private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var capsuleAdapter: CapsuleAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // fragment_list.xml 레이아웃을 인플레이트합니다.
-        val view = inflater.inflate(R.layout.fragment_list, container, false)
+        // 뷰 바인딩 초기화
+        _binding = FragmentListBinding.inflate(inflater, container, false)
+        val view = binding.root // 뷰 바인딩의 루트 뷰 반환
 
-        // ID가 'first_list'인 LinearLayout을 찾습니다.
-        // fragment_list.xml에 해당 ID가 있는 LinearLayout이 있어야 합니다.
-        val firstListLayout: LinearLayout = view.findViewById(R.id.first_list)
+        initRecyclerView() // RecyclerView 설정 함수 호출
 
-        // 찾은 LinearLayout에 클릭 리스너를 설정합니다.
-        firstListLayout.setOnClickListener {
-            // ListActivity로 이동하는 Intent를 생성합니다.
-            // 'activity'는 Fragment가 현재 연결된 Activity의 Context를 나타냅니다.
-            val intent = Intent(activity, Listactivity::class.java)
-            // 액티비티를 시작합니다.
-            startActivity(intent)
-        }
+        // ListActivity로 이동하는 기존 로직 (필요에 따라 유지하거나 제거)
+        // binding.firstList (fragment_list.xml에 first_list가 있다면 사용)
+        // 만약 기존 LinearLayout이 제거되었다면 이 부분을 삭제하세요.
+        // val firstListLayout: LinearLayout = view.findViewById(R.id.first_list) // ID가 없다면 오류 발생
+        // firstListLayout.setOnClickListener {
+        //     val intent = Intent(activity, Listactivity::class.java)
+        //     startActivity(intent)
+        // }
 
-        // 인플레이트된 뷰를 반환합니다.
         return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment Listfragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            Listfragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onResume() {
+        super.onResume()
+        // 프래그먼트가 다시 활성화될 때마다 캡슐 목록을 새로고침
+        displayExpiredCapsules()
+    }
+
+    private fun initRecyclerView() {
+        // 어댑터 초기화. 캡슐 아이템 클릭 시 CapsuleDetailActivity로 이동
+        capsuleAdapter = CapsuleAdapter(emptyList()) { capsule ->
+            // --- 이 아래 부분이 새로 추가되거나 수정되는 부분입니다. ---
+            // 클릭된 캡슐 객체를 CapsuleDetailActivity로 전달하는 Intent 생성
+            val intent = Intent(requireContext(), CapsuleDetailActivity::class.java).apply {
+                putExtra("selected_capsule", capsule) // Capsule 객체를 Intent에 추가 (Serializable 객체)
             }
+            startActivity(intent) // CapsuleDetailActivity 시작
+            // --- 여기까지입니다. ---
+        }
+
+        binding.capsuleRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = capsuleAdapter
+        }
+    }
+
+    // 만료된 캡슐을 필터링하고 RecyclerView에 표시하는 함수
+    private fun displayExpiredCapsules() {
+        val allCapsules = CapsuleRepository.getAllCapsules() // 저장소에서 모든 캡슐 가져오기
+        val currentTimeMillis = Calendar.getInstance().timeInMillis // 현재 시간 (밀리초)
+
+        val expiredCapsules = allCapsules.filter { capsule ->
+            // ddayMillis가 null이 아니면서, 현재 시간보다 작은 경우 (즉, 이미 지난 경우)
+            capsule.ddayMillis != null && capsule.ddayMillis!! < currentTimeMillis
+        }
+
+        // 필터링된 목록을 어댑터에 전달하여 RecyclerView 업데이트
+        capsuleAdapter.submitList(expiredCapsules)
+
+        // 만료된 캡슐이 없을 때 메시지 표시 (필요하다면)
+        if (expiredCapsules.isEmpty()) {
+            binding.emptyListMessage.visibility = View.VISIBLE // "만료된 캡슐이 없습니다." 메시지 표시
+            binding.capsuleRecyclerView.visibility = View.GONE // RecyclerView 숨김
+        } else {
+            binding.emptyListMessage.visibility = View.GONE // 메시지 숨김
+            binding.capsuleRecyclerView.visibility = View.VISIBLE // RecyclerView 표시
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // 뷰 바인딩 참조 해제하여 메모리 누수 방지
     }
 }
