@@ -5,7 +5,6 @@ plugins {
 }
 
 android {
-    viewBinding.isEnabled=true
     namespace = "com.example.a1"
     compileSdk = 35
 
@@ -17,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures{
+        viewBinding  = true
     }
 
     buildTypes {
@@ -35,6 +38,8 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+
 }
 
 dependencies {
