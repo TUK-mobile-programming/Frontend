@@ -12,7 +12,7 @@ object ApiClient {
     private val client = OkHttpClient()
 
     /** 에뮬레이터 → 로컬 서버라면 10.0.2.2 사용, 실제 서버라면 URL 교체 */
-    private const val BASE_URL = "https://bold-seal-only.ngrok-free.app/"
+    private const val BASE_URL = "https://bold-seal-only.ngrok-free.app/api/v1/"
 
     /**
      * JSON POST 를 간단히 실행하고 결과 문자열을 그대로 돌려줍니다.

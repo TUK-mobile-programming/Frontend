@@ -2,28 +2,49 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/homefragment">
 
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <!-- ─── ① 로그인 ───────────────────────────── -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.a1.LoginFragment"
+        tools:layout="@layout/fragment_login">
+
+        <!-- 로그인 성공 → 홈으로, 스택에서 Login 제거 -->
+        <action
+            android:id="@+id/action_loginFragment_to_home"
+            app:destination="@id/homefragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <!-- ─── ② 홈 (menu id: @id/homefragment) ──── -->
     <fragment
         android:id="@+id/homefragment"
         android:name="com.example.a1.Homefragment"
         tools:layout="@layout/fragment_home" />
 
+    <!-- ─── ③ 캡슐 (@id/capsulefragment) ──────── -->
     <fragment
         android:id="@+id/capsulefragment"
         android:name="com.example.a1.capsule.CapsuleFragment"
         tools:layout="@layout/fragment_capsule" />
 
+    <!-- ─── ④ 추가 (@id/addfragment) ──────────── -->
     <fragment
         android:id="@+id/addfragment"
         android:name="com.example.a1.AddFragment"
         tools:layout="@layout/fragment_add" />
 
+    <!-- ─── ⑤ 보관함 (@id/listfragment) ───────── -->
     <fragment
         android:id="@+id/listfragment"
         android:name="com.example.a1.Listfragment"
         tools:layout="@layout/fragment_list" />
 
+    <!-- ─── ⑥ 마이페이지 (@id/mypagefragment) ─── -->
     <fragment
         android:id="@+id/mypagefragment"
         android:name="com.example.a1.Mypagefragment"
