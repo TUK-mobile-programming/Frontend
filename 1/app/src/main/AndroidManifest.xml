@@ -38,7 +38,7 @@
         android:name=".Activity_navi"
         android:exported="false" />
         <activity
-            android:name=".`LoginFragment.kt`"
+            android:name=".LoginFragment"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
