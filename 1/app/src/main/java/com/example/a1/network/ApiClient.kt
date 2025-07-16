@@ -50,4 +50,28 @@ object ApiClient {
             }
         })
     }
+    fun getJson(
+        endpoint: String,
+        onResult: (Boolean, String) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url(BASE_URL + endpoint.trimStart('/'))  // "capsule/closed/user1" 등
+            .get()
+            .build()
+
+        Log.d("ApiClient", "GET  → ${request.url}")
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("ApiClient", "fail: ${e.message}")
+                onResult(false, e.message ?: "network error")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val resBody = response.body?.string() ?: ""
+                Log.d("ApiClient", "code=${response.code} body=$resBody")
+                onResult(response.isSuccessful, resBody)
+            }
+        })
+    }
 }

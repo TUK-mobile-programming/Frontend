@@ -1,5 +1,6 @@
 package com.example.a1
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -49,23 +50,32 @@ class LoginFragment : Fragment() {
         ApiClient.postJson("user/login", payload) { ok, res ->
             requireActivity().runOnUiThread {
                 if (ok) {
+                    /* 1) userId = 서버가 보낸 순수 문자열   ─ 공백·개행 제거 */
+                    val userId = res.trim()           // 예: "4"
+
+                    /* 2) SharedPreferences 저장 */
+                    requireContext()
+                        .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("userId", userId)  // 문자열 그대로 저장
+                        .apply()
+
                     toast("로그인 성공!")
 
-                    // 🔸 Login → Home 로 전환 ― **Activity 재시작 없이**
+                    /* 3) 로그인 → 홈 화면으로 이동 (기존 로직 유지) */
                     findNavController().navigate(
                         R.id.action_loginFragment_to_home,
                         null,
-                        /* back-stack 에서 Login 제거 */
                         androidx.navigation.NavOptions.Builder()
-                            .setPopUpTo(R.id.loginFragment, /*inclusive=*/true)
+                            .setPopUpTo(R.id.loginFragment, true)
                             .build()
                     )
-
                 } else {
                     toast("로그인 실패: $res")
                 }
             }
         }
+
     }
 
     private fun toast(msg: String) =
