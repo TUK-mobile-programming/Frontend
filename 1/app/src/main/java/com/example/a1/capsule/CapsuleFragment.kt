@@ -9,25 +9,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a1.R
 import com.example.a1.repository.CapsuleRepository
+import com.example.a1.repository.UserRepository
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
-import com.example.a1.capsule.CapsuleAdapter
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 class CapsuleFragment : Fragment() {
 
-    private lateinit var mapView   : MapView
-    private var       naverMap    : NaverMap? = null
-    private lateinit var recycler : RecyclerView
-    private lateinit var adapter  : CapsuleAdapter
-
-    // we keep track of markers ourselves
+    private lateinit var mapView: MapView
+    private var naverMap: NaverMap? = null
+    private lateinit var recycler: RecyclerView
+    private lateinit var adapter: CapsuleAdapter
     private val markers = mutableListOf<Marker>()
-
-    /** Combine opened + closed capsules */
-    private val allCapsules get() =
-        CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +36,7 @@ class CapsuleFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val v = inflater.inflate(R.layout.fragment_capsule, container, false)
-        mapView  = v.findViewById(R.id.naverMapView)
+        mapView = v.findViewById(R.id.naverMapView)
         recycler = v.findViewById(R.id.capsuleRecyclerView)
         mapView.onCreate(savedInstanceState)
         setupRecyclerView()
@@ -49,6 +46,12 @@ class CapsuleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupMap()
+
+        val userId = UserRepository.getCurrentUser()?.userId?: return
+        CapsuleRepository.refreshCapsuleList(userId) { success, error ->
+            if (success) refreshUI()
+            else error?.let { println("캡슐 로딩 실패: $it") }
+        }
     }
 
     private fun setupMap() {
@@ -64,38 +67,59 @@ class CapsuleFragment : Fragment() {
     }
 
     private fun addCapsuleMarkers(map: NaverMap) {
-        // clear old markers
         markers.forEach { it.map = null }
         markers.clear()
 
-        // add new markers
-        allCapsules.forEachIndexed { idx, cap ->
-            val lat = cap.latitude  ?: 37.5665 + idx * 0.001
-            val lng = cap.longitude ?: 126.9780 + idx * 0.001
+        val today = LocalDate.now()
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+            .filter { capsule ->
+                val dday = capsule.ddayMillis ?: return@filter true
+                val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
+                !capsuleDate.isBefore(today) // 과거 날짜 제거
+            }
 
+        capsules.forEachIndexed { idx, cap ->
+            val lat = cap.latitude ?: 37.5665 + idx * 0.001
+            val lng = cap.longitude ?: 126.9780 + idx * 0.001
             val marker = Marker().apply {
-                position    = LatLng(lat, lng)
-                icon        = if (cap.isOpened) MarkerIcons.RED else MarkerIcons.BLACK
+                position = LatLng(lat, lng)
+                icon = if (cap.isOpened) MarkerIcons.RED else MarkerIcons.BLACK
                 captionText = cap.title
-                this.map    = map
+                this.map = map
             }
             markers += marker
         }
     }
 
     private fun setupRecyclerView() {
-        adapter = CapsuleAdapter(allCapsules)
+        val today = LocalDate.now()
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+            .filter { capsule ->
+                val dday = capsule.ddayMillis ?: return@filter true
+                val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
+                !capsuleDate.isBefore(today)
+            }
+
+        adapter = CapsuleAdapter(capsules)
         recycler.layoutManager = LinearLayoutManager(requireContext())
-        recycler.adapter       = adapter
+        recycler.adapter = adapter
     }
 
     private fun refreshUI() {
-        adapter.submitList(allCapsules)
+        val today = LocalDate.now()
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+            .filter { capsule ->
+                val dday = capsule.ddayMillis ?: return@filter true
+                val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
+                !capsuleDate.isBefore(today)
+            }
+
+        adapter.submitList(capsules)
         naverMap?.let { addCapsuleMarkers(it) }
     }
 
     override fun onStart()       { super.onStart();  mapView.onStart() }
-    override fun onResume()      { super.onResume(); mapView.onResume(); refreshUI() }
+    override fun onResume()      { super.onResume(); mapView.onResume() }
     override fun onPause()       { mapView.onPause(); super.onPause() }
     override fun onStop()        { mapView.onStop();  super.onStop() }
     override fun onLowMemory()   { mapView.onLowMemory(); super.onLowMemory() }
