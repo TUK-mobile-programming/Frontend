@@ -60,4 +60,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     //네이버 지도 api
     implementation("com.naver.maps:map-sdk:3.21.0")
+    //mypage api 설정
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
