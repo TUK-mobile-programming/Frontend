@@ -10,20 +10,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.a1.R
 import com.example.a1.repository.CapsuleRepository
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.CameraUpdate
-import com.naver.maps.map.MapView
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.NaverMapSdk
+import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
+import com.example.a1.capsule.CapsuleAdapter
 
 class CapsuleFragment : Fragment() {
 
-    private lateinit var mapView: MapView
-    private var naverMap: NaverMap? = null
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: CapsuleAdapter
+    private lateinit var mapView   : MapView
+    private var       naverMap    : NaverMap? = null
+    private lateinit var recycler : RecyclerView
+    private lateinit var adapter  : CapsuleAdapter
+
+    // we keep track of markers ourselves
+    private val markers = mutableListOf<Marker>()
+
+    /** Combine opened + closed capsules */
+    private val allCapsules get() =
+        CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,15 +38,12 @@ class CapsuleFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_capsule, container, false)
-
-        mapView = view.findViewById(R.id.naverMapView)
-        recyclerView = view.findViewById(R.id.capsuleRecyclerView)
-
+        val v = inflater.inflate(R.layout.fragment_capsule, container, false)
+        mapView  = v.findViewById(R.id.naverMapView)
+        recycler = v.findViewById(R.id.capsuleRecyclerView)
         mapView.onCreate(savedInstanceState)
         setupRecyclerView()
-
-        return view
+        return v
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,53 +51,53 @@ class CapsuleFragment : Fragment() {
         setupMap()
     }
 
-    // ───────── 지도 설정 ─────────
     private fun setupMap() {
         mapView.getMapAsync { map ->
             naverMap = map
-
-            // 초기 카메라 위치
-            val initialCamera = CameraUpdate.toCameraPosition(
-                CameraPosition(LatLng(37.5665, 126.9780), 14.0)
+            map.moveCamera(
+                CameraUpdate.toCameraPosition(
+                    CameraPosition(LatLng(37.5665, 126.9780), 14.0)
+                )
             )
-            map.moveCamera(initialCamera)
-
-            // 저장된 캡슐 기반 마커 추가
             addCapsuleMarkers(map)
         }
     }
 
     private fun addCapsuleMarkers(map: NaverMap) {
-        val capsules = CapsuleRepository.getAllCapsules()
+        // clear old markers
+        markers.forEach { it.map = null }
+        markers.clear()
 
-        capsules.forEachIndexed { index, capsule ->
-            // 현재는 위치 정보 없으므로 더미 위치로 분산해서 배치
-            val lat = 37.5665 + (index * 0.001)
-            val lng = 126.9780 + (index * 0.001)
+        // add new markers
+        allCapsules.forEachIndexed { idx, cap ->
+            val lat = cap.latitude  ?: 37.5665 + idx * 0.001
+            val lng = cap.longitude ?: 126.9780 + idx * 0.001
 
-            Marker().apply {
-                position = LatLng(lat, lng)
-                icon = MarkerIcons.BLACK
-                captionText = capsule.title
-                this.map = map
+            val marker = Marker().apply {
+                position    = LatLng(lat, lng)
+                icon        = if (cap.isOpened) MarkerIcons.RED else MarkerIcons.BLACK
+                captionText = cap.title
+                this.map    = map
             }
+            markers += marker
         }
     }
 
-    // ───────── 리스트 설정 ─────────
     private fun setupRecyclerView() {
-        val capsules = CapsuleRepository.getAllCapsules()
-        adapter = CapsuleAdapter(capsules)
-
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+        adapter = CapsuleAdapter(allCapsules)
+        recycler.layoutManager = LinearLayoutManager(requireContext())
+        recycler.adapter       = adapter
     }
 
-    // ───────── MapView 라이프사이클 ─────────
-    override fun onStart()        { super.onStart();        mapView.onStart() }
-    override fun onResume()       { super.onResume();       mapView.onResume() }
-    override fun onPause()        { super.onPause();        mapView.onPause() }
-    override fun onStop()         { super.onStop();         mapView.onStop() }
-    override fun onLowMemory()    { super.onLowMemory();    mapView.onLowMemory() }
-    override fun onDestroyView()  { mapView.onDestroy();    super.onDestroyView() }
+    private fun refreshUI() {
+        adapter.submitList(allCapsules)
+        naverMap?.let { addCapsuleMarkers(it) }
+    }
+
+    override fun onStart()       { super.onStart();  mapView.onStart() }
+    override fun onResume()      { super.onResume(); mapView.onResume(); refreshUI() }
+    override fun onPause()       { mapView.onPause(); super.onPause() }
+    override fun onStop()        { mapView.onStop();  super.onStop() }
+    override fun onLowMemory()   { mapView.onLowMemory(); super.onLowMemory() }
+    override fun onDestroyView() { mapView.onDestroy(); super.onDestroyView() }
 }
