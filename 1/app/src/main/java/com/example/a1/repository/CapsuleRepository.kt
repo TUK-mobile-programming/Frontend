@@ -128,7 +128,7 @@ object CapsuleRepository {
     private val opened = mutableListOf<Capsule>()
     private val closed = mutableListOf<Capsule>()
 
-    fun getOpeenedCapsules(): List<Capsule> = opened
+    fun getOpenedCapsules(): List<Capsule> = opened
     fun getClosedCapsule(): List<Capsule> = closed
 
     fun clearCache() { opened.clear(); closed.clear() }
