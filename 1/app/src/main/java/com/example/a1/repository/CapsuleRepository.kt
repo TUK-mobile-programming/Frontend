@@ -6,6 +6,7 @@ import com.example.a1.capsule.Capsule
 import com.example.a1.capsule.CapsuleContent
 import com.example.a1.network.ApiClient
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -145,12 +146,14 @@ object CapsuleRepository {
             form.condition?.let { addFormDataPart("condition", it) }
             form.contentText?.let { addFormDataPart("content_text", it) }
 
-            // 파일 파트
             form.files.forEachIndexed { idx, uri ->
-                ctx.contentResolver.openInputStream(uri)?.use { s ->
-                    val bytes = s.readBytes()
-                    val req = bytes.toRequestBody("application/octet-stream".toMediaType())
-                    addFormDataPart("files", "file$idx", req)
+                val mimeType = ctx.contentResolver.getType(uri) ?: "application/octet-stream"
+                val fileName = "file$idx"
+
+                ctx.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    val bytes = inputStream.readBytes()
+                    val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                    addFormDataPart("files", fileName, requestBody)
                 }
             }
         }.build()
@@ -162,4 +165,5 @@ object CapsuleRepository {
             onFailure = { err -> onComplete(false, err) }
         )
     }
+
 }
