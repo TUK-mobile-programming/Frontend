@@ -20,6 +20,9 @@ class LoginFragment : Fragment() {
 
     private var _bind: FragmentLoginBinding? = null
     private val bind get() = _bind!!
+    private fun toast(msg: String) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -37,11 +40,17 @@ class LoginFragment : Fragment() {
 
         return bind.root
     }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _bind = null
+    }
 
     private fun attemptLogin() = with(bind) {
         val email = etEmail.text.toString().trim()
-        val pw    = etPassword.text.toString().trim()
-        if (email.isBlank() || pw.isBlank()) { toast("이메일과 비밀번호를 입력하세요"); return }
+        val pw = etPassword.text.toString().trim()
+        if (email.isBlank() || pw.isBlank()) {
+            toast("이메일과 비밀번호를 입력하세요"); return
+        }
 
         val payload = JSONObject().apply {
             put("email", email)
@@ -54,10 +63,10 @@ class LoginFragment : Fragment() {
                 if (ok) {
                     /* ① 서버에서 받은 응답(JSON)을 파싱해서 사용자 정보 얻기
                        예: { "user_id": 3, "email": "user1", "access_token": "abc..." } */
-                    val obj  = JSONObject(res)
+                    val obj = JSONObject(res)
                     val user = User(
-                        userId      = obj.getInt("user_id"),
-                        email       = obj.getString("email"),
+                        userId = obj.getInt("user_id"),
+                        email = obj.getString("email"),
                         accessToken = obj.optString("access_token", null)
                     )
                     // ② Repository에 저장 + prefs에 기록
@@ -77,11 +86,5 @@ class LoginFragment : Fragment() {
             }
         }
 
-    private fun toast(msg: String) =
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _bind = null
     }
 }
