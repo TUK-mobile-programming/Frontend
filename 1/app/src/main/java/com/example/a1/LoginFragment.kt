@@ -1,5 +1,6 @@
 package com.example.a1
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.a1.R
 import com.example.a1.databinding.FragmentLoginBinding
-import com.example.a1.model.User
 import com.example.a1.network.ApiClient
-import com.example.a1.repository.UserRepository
 
 import org.json.JSONObject
 
@@ -20,9 +19,6 @@ class LoginFragment : Fragment() {
 
     private var _bind: FragmentLoginBinding? = null
     private val bind get() = _bind!!
-    private fun toast(msg: String) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -40,39 +36,33 @@ class LoginFragment : Fragment() {
 
         return bind.root
     }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _bind = null
-    }
 
     private fun attemptLogin() = with(bind) {
         val email = etEmail.text.toString().trim()
-        val pw = etPassword.text.toString().trim()
-        if (email.isBlank() || pw.isBlank()) {
-            toast("이메일과 비밀번호를 입력하세요"); return
-        }
+        val pw    = etPassword.text.toString().trim()
+        if (email.isBlank() || pw.isBlank()) { toast("이메일과 비밀번호를 입력하세요"); return }
 
         val payload = JSONObject().apply {
             put("email", email)
             put("password", pw)
         }
 
-        // ... 생략 …
         ApiClient.postJson("user/login", payload) { ok, res ->
             requireActivity().runOnUiThread {
                 if (ok) {
-                    /* ① 서버에서 받은 응답(JSON)을 파싱해서 사용자 정보 얻기
-                       예: { "user_id": 3, "email": "user1", "access_token": "abc..." } */
-                    val obj = JSONObject(res)
-                    val user = User(
-                        userId = obj.getInt("user_id"),
-                        email = obj.getString("email"),
-                        accessToken = obj.optString("access_token", null)
-                    )
-                    // ② Repository에 저장 + prefs에 기록
-                    UserRepository.setUser(requireContext(), user)
+                    /* 1) userId = 서버가 보낸 순수 문자열   ─ 공백·개행 제거 */
+                    val userId = res.trim()           // 예: "4"
 
-                    // ③ 화면 전환
+                    /* 2) SharedPreferences 저장 */
+                    requireContext()
+                        .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("userId", userId)  // 문자열 그대로 저장
+                        .apply()
+
+                    toast("로그인 성공!")
+
+                    /* 3) 로그인 → 홈 화면으로 이동 (기존 로직 유지) */
                     findNavController().navigate(
                         R.id.action_loginFragment_to_home,
                         null,
@@ -80,11 +70,20 @@ class LoginFragment : Fragment() {
                             .setPopUpTo(R.id.loginFragment, true)
                             .build()
                     )
+
                 } else {
                     toast("로그인 실패: $res")
                 }
             }
         }
 
+    }
+
+    private fun toast(msg: String) =
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _bind = null
     }
 }
