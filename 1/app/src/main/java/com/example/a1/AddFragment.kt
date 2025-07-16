@@ -3,10 +3,12 @@ package com.example.a1
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -142,7 +144,7 @@ class AddFragment : Fragment() {
     // ──────────────────────────────────────────────────────────────────────
     // AddFragment.kt ── 기존 createCapsule() → 아래 코드로 교체
     private fun createCapsule() = with(binding) {
-
+        Log.e(TAG,"createCapsule")
         /* ── ① 입력값 검증 ───────────────────────────── */
         val title = etTitle.text.toString().trim()
         val body  = etBody .text.toString().trim()
@@ -152,11 +154,15 @@ class AddFragment : Fragment() {
         /* ── ② 로그인된 사용자 id 확보 ──────────────── */
         val userId = UserRepository.getCurrentUser()?.userId ?: run {
             Toast.makeText(requireContext(),"로그인 정보가 없습니다",Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "❌ 로그인 정보 없음")
             return                                            // 더 진행하지 않음
         }
 
+        Log.d(TAG, "👤 로그인 사용자 ID: $userId")
+
         /* switchLocation 이 레이아웃에 없으면 false */
         val isLocationBased = runCatching { switchLocation.isChecked }.getOrDefault(false)
+        Log.d(TAG, "📍 위치 기반 여부: $isLocationBased")
 
         /* ── ③ 업로드 폼 구성 ───────────────────────── */
         val form = CapsuleRepository.CapsuleCreateForm(
@@ -170,23 +176,29 @@ class AddFragment : Fragment() {
             isGroup     = switchJoint.isChecked,
             condition   = if (switchCondition.isChecked)
                 etCondition.text.toString().trim() else null,
-            members     = emptyList(),
             contentText = body,
             files       = selectedMediaUri?.let { listOf(it) } ?: emptyList()
         )
+        Log.d(TAG, "📤 업로드 준비 완료")
+        Log.d(TAG, "📨 업로드 데이터: $form")
+
 
         /* ── ④ 서버 전송 ───────────────────────────── */
         CapsuleRepository.uploadCapsule(
             ctx  = requireContext(),
             form = form
         ) { ok, err ->
-            requireActivity().runOnUiThread {
+            activity?.runOnUiThread {
+                if (!isAdded) return@runOnUiThread  // 이미 detach 된 경우 무시
+
                 if (ok) {
                     Toast.makeText(requireContext(),"캡슐이 생성되었습니다!",Toast.LENGTH_SHORT).show()
+                    Log.i(TAG, "✅ 캡슐 생성 성공")
                     CapsuleRepository.refreshCapsuleList(userId) { _, _ -> }
                     findNavController().popBackStack()
                 } else {
                     Toast.makeText(requireContext(),"실패: $err",Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "❌ 캡슐 생성 실패: $err")
                 }
             }
         }
