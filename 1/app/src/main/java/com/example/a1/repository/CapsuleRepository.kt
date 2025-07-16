@@ -130,7 +130,9 @@ object CapsuleRepository {
     private val opened = mutableListOf<Capsule>()
     private val closed = mutableListOf<Capsule>()
 
-    fun getAllCapsules(): List<Capsule> = opened + closed
+    fun getOpeenedCapsules(): List<Capsule> = opened
+    fun getCosedCapsule(): List<Capsule> = closed
+
     fun clearCache() { opened.clear(); closed.clear() }
 
     // ────────────────── 날짜 포맷 ───────────────

@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.a1.R
 import com.example.a1.databinding.FragmentLoginBinding
+import com.example.a1.model.User
 import com.example.a1.network.ApiClient
+import com.example.a1.repository.UserRepository
 
 import org.json.JSONObject
 
@@ -46,27 +48,34 @@ class LoginFragment : Fragment() {
             put("password", pw)
         }
 
+        // ... 생략 …
         ApiClient.postJson("user/login", payload) { ok, res ->
             requireActivity().runOnUiThread {
                 if (ok) {
-                    toast("로그인 성공!")
+                    /* ① 서버에서 받은 응답(JSON)을 파싱해서 사용자 정보 얻기
+                       예: { "user_id": 3, "email": "user1", "access_token": "abc..." } */
+                    val obj  = JSONObject(res)
+                    val user = User(
+                        userId      = obj.getInt("user_id"),
+                        email       = obj.getString("email"),
+                        accessToken = obj.optString("access_token", null)
+                    )
+                    // ② Repository에 저장 + prefs에 기록
+                    UserRepository.setUser(requireContext(), user)
 
-                    // 🔸 Login → Home 로 전환 ― **Activity 재시작 없이**
+                    // ③ 화면 전환
                     findNavController().navigate(
                         R.id.action_loginFragment_to_home,
                         null,
-                        /* back-stack 에서 Login 제거 */
                         androidx.navigation.NavOptions.Builder()
-                            .setPopUpTo(R.id.loginFragment, /*inclusive=*/true)
+                            .setPopUpTo(R.id.loginFragment, true)
                             .build()
                     )
-
                 } else {
                     toast("로그인 실패: $res")
                 }
             }
         }
-    }
 
     private fun toast(msg: String) =
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
