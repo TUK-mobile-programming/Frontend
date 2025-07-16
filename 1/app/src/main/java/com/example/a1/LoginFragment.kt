@@ -70,6 +70,7 @@ class LoginFragment : Fragment() {
                             .setPopUpTo(R.id.loginFragment, true)
                             .build()
                     )
+
                 } else {
                     toast("로그인 실패: $res")
                 }

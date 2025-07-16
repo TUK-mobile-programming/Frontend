@@ -15,9 +15,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.a1.capsule.Capsule
 import com.example.a1.databinding.FragmentAddBinding
 import com.example.a1.repository.CapsuleRepository
+import com.example.a1.repository.UserRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
@@ -138,28 +140,56 @@ class AddFragment : Fragment() {
     // ──────────────────────────────────────────────────────────────────────
     // 캡슐 생성
     // ──────────────────────────────────────────────────────────────────────
+    // AddFragment.kt ── 기존 createCapsule() → 아래 코드로 교체
     private fun createCapsule() = with(binding) {
+
+        /* ── ① 입력값 검증 ───────────────────────────── */
         val title = etTitle.text.toString().trim()
-        val body  = etBody.text.toString().trim()
-
+        val body  = etBody .text.toString().trim()
         if (title.isEmpty()) { etTitle.error = "제목을 입력하세요"; return }
-        if (body .isEmpty()) { etBody .error = "내용을 입력하세요"; return }
+        if (body .isEmpty()) { etBody .error  = "내용을 입력하세요"; return }
 
-        val capsule = Capsule(
-            title      = title,
-            body       = body,
-            tags       = etTag.text.toString().trim(),
-            mediaUri   = selectedMediaUri?.toString(),
-            ddayMillis = selectedDateMillis,
-            condition  = if (switchCondition.isChecked) etCondition.text.toString().trim() else null,
-            isJoint    = switchJoint.isChecked,
-            latitude   = currentLocation?.latitude,
-            longitude  = currentLocation?.longitude
+        /* ── ② 로그인된 사용자 id 확보 ──────────────── */
+        val userId = UserRepository.getCurrentUser()?.userId ?: run {
+            Toast.makeText(requireContext(),"로그인 정보가 없습니다",Toast.LENGTH_SHORT).show()
+            return                                            // 더 진행하지 않음
+        }
+
+        /* switchLocation 이 레이아웃에 없으면 false */
+        val isLocationBased = runCatching { switchLocation.isChecked }.getOrDefault(false)
+
+        /* ── ③ 업로드 폼 구성 ───────────────────────── */
+        val form = CapsuleRepository.CapsuleCreateForm(
+            userId      = userId,
+            capsuleName = title,
+            targetTime  = SimpleDateFormat("yyyy.MM.dd", Locale.KOREA)
+                .format(selectedDateMillis ?: System.currentTimeMillis()),
+            locationLat = currentLocation?.latitude,
+            locationLng = currentLocation?.longitude,
+            isLocation  = isLocationBased,
+            isGroup     = switchJoint.isChecked,
+            condition   = if (switchCondition.isChecked)
+                etCondition.text.toString().trim() else null,
+            members     = emptyList(),
+            contentText = body,
+            files       = selectedMediaUri?.let { listOf(it) } ?: emptyList()
         )
 
-        CapsuleRepository.addCapsule(capsule)
-        Toast.makeText(requireContext(), "캡슐이 생성되었습니다!", Toast.LENGTH_SHORT).show()
-        requireActivity().supportFragmentManager.popBackStack()
+        /* ── ④ 서버 전송 ───────────────────────────── */
+        CapsuleRepository.uploadCapsule(
+            ctx  = requireContext(),
+            form = form
+        ) { ok, err ->
+            requireActivity().runOnUiThread {
+                if (ok) {
+                    Toast.makeText(requireContext(),"캡슐이 생성되었습니다!",Toast.LENGTH_SHORT).show()
+                    CapsuleRepository.refreshCapsuleList(userId) { _, _ -> }
+                    findNavController().popBackStack()
+                } else {
+                    Toast.makeText(requireContext(),"실패: $err",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     // ──────────────────────────────────────────────────────────────────────

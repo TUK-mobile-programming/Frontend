@@ -380,6 +380,32 @@
                             android:trackTint="#AD99C1" />
                     </LinearLayout>
 
+                    <!-- 위치 설정 (Switch) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp"
+                        android:background="#191121">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="위치 저장"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switchLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="#6750A4"
+                            android:trackTint="#AD99C1" />
+                    </LinearLayout>
+
                 </LinearLayout> <!-- /purple block -->
 
             </LinearLayout>

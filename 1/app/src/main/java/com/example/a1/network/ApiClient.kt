@@ -74,4 +74,59 @@ object ApiClient {
             }
         })
     }
+
+    fun get(endpoint: String,
+            onSuccess: (String) -> Unit,
+            onFailure: (String) -> Unit) {
+
+        val req = Request.Builder()
+            .url(BASE_URL + endpoint)
+            .get()
+            .build()
+
+        client.newCall(req).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) =
+                onFailure(e.message ?: "network error")
+
+            override fun onResponse(call: Call, res: Response) {
+                val text = res.body?.string() ?: ""
+                if (res.isSuccessful) onSuccess(text) else onFailure(text)
+            }
+        })
+    }
+
+    /**
+     * 멀티파트 폼-데이터 POST
+     *
+     * @param endpoint   예) "capsule/"
+     * @param body       이미 완성된 MultipartBody
+     * @param onSuccess  HTTP 2xx 일 때 호출 – response body 문자열 전달
+     * @param onFailure  실패 또는 2xx 외 코드 – 에러 메시지 전달
+     */
+    fun postMultipart(
+        endpoint: String,
+        body: MultipartBody,
+        onSuccess: (String) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url(BASE_URL + endpoint)
+            .post(body)
+            .build()
+
+        Log.d("ApiClient", "POST(Multipart) → ${request.url} (${body.parts.size} parts)")
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("ApiClient", "fail: ${e.message}")
+                onFailure(e.message ?: "network error")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val resBody = response.body?.string() ?: ""
+                Log.d("ApiClient", "code=${response.code} body=$resBody")
+                if (response.isSuccessful) onSuccess(resBody) else onFailure(resBody)
+            }
+        })
+    }
 }

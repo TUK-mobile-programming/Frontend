@@ -1,4 +1,4 @@
-package com.example.a1.capsule
+package com.example.a1.cpasule
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a1.R
+import com.example.a1.capsule.Capsule
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

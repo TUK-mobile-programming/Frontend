@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a1.capsule.Capsule
-import com.example.a1.capsule.CapsuleAdapter
+import com.example.a1.cpasule.CapsuleAdapter
 import com.example.a1.databinding.FragmentListBinding // fragment_list.xml에 대한 뷰 바인딩
 import com.example.a1.repository.CapsuleRepository
 import java.util.Calendar
@@ -70,7 +70,7 @@ class Listfragment : Fragment() {
 
     // 만료된 캡슐을 필터링하고 RecyclerView에 표시하는 함수
     private fun displayExpiredCapsules() {
-        val allCapsules = CapsuleRepository.getAllCapsules() // 저장소에서 모든 캡슐 가져오기
+        val allCapsules = CapsuleRepository.getOpenedCapsules() // 저장소에서 모든 캡슐 가져오기
         val currentTimeMillis = Calendar.getInstance().timeInMillis // 현재 시간 (밀리초)
 
         val expiredCapsules = allCapsules.filter { capsule ->
