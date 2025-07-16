@@ -67,7 +67,7 @@ class CapsuleFragment : Fragment() {
     }
 
     private fun addCapsuleMarkers(map: NaverMap) {
-        val capsules = CapsuleRepository.getAllCapsules()
+        val capsules = CapsuleRepository.getCosedCapsule()
 
         capsules.forEachIndexed { index, capsule ->
             // 현재는 위치 정보 없으므로 더미 위치로 분산해서 배치
@@ -85,7 +85,7 @@ class CapsuleFragment : Fragment() {
 
     // ───────── 리스트 설정 ─────────
     private fun setupRecyclerView() {
-        val capsules = CapsuleRepository.getAllCapsules()
+        val capsules = CapsuleRepository.getCosedCapsule()
         adapter = CapsuleAdapter(capsules)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
