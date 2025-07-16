@@ -13,7 +13,7 @@ data class Capsule(
     val isJoint: Boolean,
 
     val latitude: Double? = null,
-    val longitude: Double?=null
+    val longitude: Double?=null,
 
     val isOpened : Boolean = false,
     val contents : List<CapsuleContent> = emptyList()
