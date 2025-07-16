@@ -17,6 +17,7 @@ import com.naver.maps.map.util.MarkerIcons
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import com.example.a1.cpasule.CapsuleAdapter
 
 class CapsuleFragment : Fragment() {
 
