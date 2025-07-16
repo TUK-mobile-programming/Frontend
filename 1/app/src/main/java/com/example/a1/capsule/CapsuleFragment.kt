@@ -48,10 +48,12 @@ class CapsuleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupMap()
 
-        val userId = UserRepository.getCurrentUser()?.userId?: return
+        val userId = UserRepository.getCurrentUser()?.userId ?: return
         CapsuleRepository.refreshCapsuleList(userId) { success, error ->
-            if (success) refreshUI()
-            else error?.let { println("캡슐 로딩 실패: $it") }
+            requireActivity().runOnUiThread {
+                if (success) refreshUI()
+                else error?.let { println("캡슐 로딩 실패: $it") }
+            }
         }
     }
 
