@@ -60,7 +60,7 @@ class Homefragment : Fragment() {
 
     /* ---------- 데이터 로드 ---------- */
     private fun refreshData() {
-        capsules = CapsuleRepository.getAllCapsules()
+        capsules = CapsuleRepository.getClosedCapsule()
         if (capsules.isEmpty()) currIndex = 0 else currIndex %= capsules.size
         updateUI()
     }

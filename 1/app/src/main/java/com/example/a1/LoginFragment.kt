@@ -57,22 +57,18 @@ class LoginFragment : Fragment() {
             put("password", pw)
         }
 
-        // ... 생략 …
         ApiClient.postJson("user/login", payload) { ok, res ->
             requireActivity().runOnUiThread {
-                if (ok) {
-                    /* ① 서버에서 받은 응답(JSON)을 파싱해서 사용자 정보 얻기
-                       예: { "user_id": 3, "email": "user1", "access_token": "abc..." } */
-                    val obj = JSONObject(res)
+                if (ok && res == "1") {
+                    // 로그인 성공 → 로컬에 저장
                     val user = User(
-                        userId = obj.getInt("user_id"),
-                        email = obj.getString("email"),
-                        accessToken = obj.optString("access_token", null)
+                        userId = 1, // 서버에서 userId를 응답하지 않으므로 임시로 지정
+                        email = email, // 사용자가 입력한 email 그대로
+                        accessToken = null // 액세스 토큰 없음
                     )
-                    // ② Repository에 저장 + prefs에 기록
                     UserRepository.setUser(requireContext(), user)
 
-                    // ③ 화면 전환
+                    // 화면 전환
                     findNavController().navigate(
                         R.id.action_loginFragment_to_home,
                         null,
