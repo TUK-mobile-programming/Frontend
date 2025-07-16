@@ -22,9 +22,7 @@ object UserRepository {
             kotlin.runCatching {
                 val o = JSONObject(json)
                 currentUser = User(
-                    userId      = o.getInt("userId"),
-                    email       = o.getString("email"),
-                    accessToken = o.optString("accessToken", null)
+                    userId      = o.getInt("userId")
                 )
             }
         }
@@ -50,8 +48,6 @@ object UserRepository {
         currentUser?.let { u ->
             val json = JSONObject().apply {
                 put("userId",      u.userId)
-                put("email",       u.email)
-                put("accessToken", u.accessToken)
             }.toString()
             context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
                 .edit().putString(KEY_JSON, json).apply()
