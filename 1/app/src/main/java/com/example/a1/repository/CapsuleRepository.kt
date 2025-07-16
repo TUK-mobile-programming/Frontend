@@ -1,7 +1,5 @@
 package com.example.a1.repository
 
-import okhttp3.MediaType.Companion.toMediaType
-
 /*
 import com.example.a1.capsule.Capsule
 import com.example.a1.network.ApiClient
@@ -113,10 +111,10 @@ object CapsuleRepository {
 }*/
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.example.a1.capsule.Capsule
 import com.example.a1.capsule.CapsuleContent
 import com.example.a1.network.ApiClient
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -131,7 +129,7 @@ object CapsuleRepository {
     private val closed = mutableListOf<Capsule>()
 
     fun getOpeenedCapsules(): List<Capsule> = opened
-    fun getCosedCapsule(): List<Capsule> = closed
+    fun getClosedCapsule(): List<Capsule> = closed
 
     fun clearCache() { opened.clear(); closed.clear() }
 

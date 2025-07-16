@@ -72,7 +72,7 @@ class CapsuleFragment : Fragment() {
         markers.clear()
 
         val today = LocalDate.now()
-        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getClosedCapsule())
             .filter { capsule ->
                 val dday = capsule.ddayMillis ?: return@filter true
                 val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
@@ -94,7 +94,7 @@ class CapsuleFragment : Fragment() {
 
     private fun setupRecyclerView() {
         val today = LocalDate.now()
-        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getClosedCapsule())
             .filter { capsule ->
                 val dday = capsule.ddayMillis ?: return@filter true
                 val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
@@ -108,7 +108,7 @@ class CapsuleFragment : Fragment() {
 
     private fun refreshUI() {
         val today = LocalDate.now()
-        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getCosedCapsule())
+        val capsules = (CapsuleRepository.getOpeenedCapsules() + CapsuleRepository.getClosedCapsule())
             .filter { capsule ->
                 val dday = capsule.ddayMillis ?: return@filter true
                 val capsuleDate = Instant.ofEpochMilli(dday).atZone(ZoneId.systemDefault()).toLocalDate()
