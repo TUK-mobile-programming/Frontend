@@ -146,14 +146,12 @@ object CapsuleRepository {
             form.condition?.let { addFormDataPart("condition", it) }
             form.contentText?.let { addFormDataPart("content_text", it) }
 
+            // 파일 파트
             form.files.forEachIndexed { idx, uri ->
-                val mimeType = ctx.contentResolver.getType(uri) ?: "application/octet-stream"
-                val fileName = "file$idx"
-
-                ctx.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val bytes = inputStream.readBytes()
-                    val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-                    addFormDataPart("files", fileName, requestBody)
+                ctx.contentResolver.openInputStream(uri)?.use { s ->
+                    val bytes = s.readBytes()
+                    val req = bytes.toRequestBody("application/octet-stream".toMediaType())
+                    addFormDataPart("files", "file$idx", req)
                 }
             }
         }.build()
