@@ -50,11 +50,11 @@ class CapsuleAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = items[position]
 
-        /* ───── 텍스트 바인딩 ───── */
+        // ───── 텍스트 바인딩 ─────
         holder.txtTitle.text = item.title
         holder.txtTags.text  = item.tags
 
-        /* ───── D-Day 계산 ───── */
+        // ───── D-Day 계산 ─────
         holder.txtDdayNumber.text = item.ddayMillis?.let { millis ->
             val openDate = Instant.ofEpochMilli(millis)
                 .atZone(ZoneId.systemDefault())
@@ -63,11 +63,20 @@ class CapsuleAdapter(
             "D${if (diff >= 0) "-" else "+"}${abs(diff)}"
         } ?: "—"
 
-        /* ───── 알약 색상 결정 ─────
-           · 공동 캡슐(on)          → purple_500
-           · 조건 설정 값 존재       → green_500
-           · 그 외                 → gray_400
-         */
+        // ───── 썸네일 이미지 바인딩 (여기 추가) ─────
+        if (!item.mediaUri.isNullOrEmpty()) {
+            try {
+                val uri = android.net.Uri.parse(item.mediaUri)
+                holder.imgCapsuleIcon.setImageURI(uri)
+            } catch (e: Exception) {
+                holder.imgCapsuleIcon.setImageResource(R.mipmap.ic_launcher) // fallback
+                e.printStackTrace()
+            }
+        } else {
+            holder.imgCapsuleIcon.setImageResource(R.mipmap.ic_launcher) // 기본 이미지
+        }
+
+        // ───── 알약 색상 결정 ─────
         val pillColorRes = when {
             item.isJoint           -> R.color.purple_500
             item.condition != null -> R.color.green_500

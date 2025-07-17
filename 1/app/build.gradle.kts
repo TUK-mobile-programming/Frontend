@@ -60,4 +60,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     //네이버 지도 api
     implementation("com.naver.maps:map-sdk:3.21.0")
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

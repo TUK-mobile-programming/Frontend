@@ -181,6 +181,14 @@ class AddFragment : Fragment() {
         )
         Log.d(TAG, "📤 업로드 준비 완료")
         Log.d(TAG, "📨 업로드 데이터: $form")
+        Log.d(TAG, "📝 제목: $title")
+        Log.d(TAG, "📝 본문: $body")
+        Log.d(TAG, "📅 D-Day: ${selectedDateMillis?.let { SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(it) }}")
+        Log.d(TAG, "📍 위치: lat=${currentLocation?.latitude}, lng=${currentLocation?.longitude}")
+        Log.d(TAG, "🪧 조건: ${if (switchCondition.isChecked) etCondition.text.toString().trim() else "없음"}")
+        Log.d(TAG, "🤝 공동 캡슐: ${switchJoint.isChecked}")
+        Log.d(TAG, "🖼️ 미디어 URI: $selectedMediaUri")
+        
 
 
         /* ── ④ 서버 전송 ───────────────────────────── */

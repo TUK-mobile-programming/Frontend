@@ -109,6 +109,7 @@ class CapsuleFragment : Fragment() {
     }
 
     private fun refreshUI() {
+        CapsuleRepository.autoOpenCapsulesIfExpired()
         val today = LocalDate.now()
         val capsules = (CapsuleRepository.getOpenedCapsules() + CapsuleRepository.getClosedCapsule())
             .filter { capsule ->

@@ -2,11 +2,11 @@ package com.example.a1.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.a1.capsule.Capsule
 import com.example.a1.capsule.CapsuleContent
 import com.example.a1.network.ApiClient
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -16,7 +16,6 @@ import java.util.Locale
 
 object CapsuleRepository {
 
-    // ────────────────── 캐시 ──────────────────
     private val opened = mutableListOf<Capsule>()
     private val closed = mutableListOf<Capsule>()
 
@@ -28,10 +27,8 @@ object CapsuleRepository {
         closed.clear()
     }
 
-    // ────────────────── 날짜 포맷 ───────────────
     private val isoFmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.KOREA)
 
-    // ────────────────── ① 목록 새로고침 ─────────
     fun refreshCapsuleList(
         userId: Int,
         onComplete: (Boolean, String?) -> Unit
@@ -40,19 +37,47 @@ object CapsuleRepository {
             val arr = JSONArray(JSONObject(json).getJSONArray("capsules").toString())
             for (i in 0 until arr.length()) {
                 val o = arr.getJSONObject(i)
-                target += Capsule(
-                    capsuleId = o.getInt("capsule_id"),
-                    title = o.getString("capsule_name"),
-                    body = "",
+                val filesArray = o.optJSONArray("files")
+                val firstImage = filesArray?.optString(0)
+
+                val openAtStr = o.getString("open_at")
+                val openAtMillis = isoFmt.parse(openAtStr)?.time ?: 0L
+                val now = System.currentTimeMillis()
+                val isOpened = now >= openAtMillis
+                val capsuleId = o.getInt("capsule_id")
+                val capsuleName = o.optString("capsule_name", "(no name)")
+                val condition = o.optString("condition", "(no condition)")
+                val isJoint = o.optInt("type", 1) == 1
+
+                Log.d("CapsuleRepository", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                Log.d("CapsuleRepository", "📦 Capsule ID: $capsuleId")
+                Log.d("CapsuleRepository", "📛 Name: $capsuleName")
+                Log.d("CapsuleRepository", "📅 OpenAt (millis): $openAtMillis")
+                Log.d("CapsuleRepository", "🕒 CurrentTime (millis): $now")
+                Log.d("CapsuleRepository", "🔓 isOpened: $isOpened")
+                Log.d("CapsuleRepository", "👥 isJoint: $isJoint")
+                Log.d("CapsuleRepository", "📜 Condition: $condition")
+                Log.d("CapsuleRepository", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+                val capsule = Capsule(
+                    capsuleId = capsuleId,
+                    title = capsuleName,
+                    body = o.optString("content_text", ""),
                     tags = "",
-                    mediaUri = null,
-                    ddayMillis = isoFmt.parse(o.getString("open_at"))?.time,
-                    condition = null,
-                    isJoint = (o.getInt("type") == 1),
+                    mediaUri = firstImage,
+                    ddayMillis = openAtMillis,
+                    condition = o.optString("condition", null),
+                    isJoint = isJoint,
                     latitude = o.optDouble("location_lat"),
                     longitude = o.optDouble("location_lng"),
-                    isOpened = (o.getInt("type") == 0)
+                    isOpened = isOpened
                 )
+
+                if (isOpened) {
+                    opened += capsule
+                } else {
+                    closed += capsule
+                }
             }
         }
 
@@ -71,7 +96,6 @@ object CapsuleRepository {
         )
     }
 
-    // ────────────────── ② 상세 열람 ────────────
     fun fetchCapsuleDetail(
         capsuleId: Int,
         userLat: Double,
@@ -116,7 +140,6 @@ object CapsuleRepository {
         )
     }
 
-    // ────────────────── ③ 생성(업로드) ─────────
     data class CapsuleCreateForm(
         val userId: Int,
         val capsuleName: String,
@@ -146,7 +169,6 @@ object CapsuleRepository {
             form.condition?.let { addFormDataPart("condition", it) }
             form.contentText?.let { addFormDataPart("content_text", it) }
 
-            // 파일 파트
             form.files.forEachIndexed { idx, uri ->
                 ctx.contentResolver.openInputStream(uri)?.use { s ->
                     val bytes = s.readBytes()
@@ -164,4 +186,14 @@ object CapsuleRepository {
         )
     }
 
+    fun autoOpenCapsulesIfExpired() {
+        val closed = getClosedCapsule()
+        for (i in closed.indices) {
+            val capsule = closed[i]
+            val dday = capsule.ddayMillis ?: continue
+            if (System.currentTimeMillis() >= dday) {
+                capsule.isOpened = true
+            }
+        }
+    }
 }

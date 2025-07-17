@@ -15,6 +15,6 @@ data class Capsule(
     val latitude: Double? = null,
     val longitude: Double?=null,
 
-    val isOpened : Boolean = false,
+    var isOpened : Boolean = false,
     val contents : List<CapsuleContent> = emptyList()
 ) : Serializable

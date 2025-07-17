@@ -1,6 +1,7 @@
 package com.example.a1
 
 import android.content.Intent // 이 줄을 추가합니다.
+import android.content.pm.PackageManager
 import java.io.Serializable
 import android.os.Bundle
 import android.util.Log
@@ -9,13 +10,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a1.capsule.Capsule
 import com.example.a1.cpasule.CapsuleAdapter
 import com.example.a1.databinding.FragmentListBinding // fragment_list.xml에 대한 뷰 바인딩
 import com.example.a1.repository.CapsuleRepository
 import com.example.a1.repository.UserRepository
+import com.google.android.gms.location.LocationServices
 import java.util.Calendar
+import android.Manifest
+import android.location.Location
+
 
 /**
  * 수정 전 코드
@@ -107,7 +113,6 @@ class Listfragment : Fragment() {
 /**
  * 만료된 캡슐만 보여주는 중
  */
-
 class Listfragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
@@ -137,6 +142,12 @@ class Listfragment : Fragment() {
                 activity?.runOnUiThread {
                     if (ok) {
                         Log.d(TAG, "✅ 서버에서 캡슐 목록 새로고침 성공")
+                        CapsuleRepository.getOpenedCapsules().forEachIndexed { index, capsule ->
+                            Log.d(
+                                TAG,
+                                "서버에서 받은 [$index] capsuleId=${capsule.capsuleId}, title=${capsule.title}, ddayMillis=${capsule.ddayMillis}, isOpened=${capsule.isOpened}"
+                            )
+                        }
                         displayExpiredCapsules()
                     } else {
                         Log.e(TAG, "❌ 목록 로딩 실패: $err")
@@ -152,10 +163,36 @@ class Listfragment : Fragment() {
 
     private fun initRecyclerView() {
         capsuleAdapter = CapsuleAdapter(emptyList()) { capsule ->
-            val intent = Intent(requireContext(), CapsuleDetailActivity::class.java).apply {
-                putExtra("selected_capsule", capsule)
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Toast.makeText(requireContext(), "위치 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+                return@CapsuleAdapter
             }
-            startActivity(intent)
+
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+                if (loc != null) {
+                    Log.d(TAG, "📍 위치 정보 획득: ${loc.latitude}, ${loc.longitude}")
+                    val intent = Intent(requireContext(), CapsuleDetailActivity::class.java).apply {
+                        putExtra("selected_capsule", capsule)
+                        putExtra("location", "${loc.latitude},${loc.longitude}")
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(requireContext(), "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener {
+                Log.e(TAG, "❌ 위치 가져오기 실패: ${it.message}")
+                Toast.makeText(requireContext(), "위치 정보를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.capsuleRecyclerView.apply {
@@ -165,8 +202,7 @@ class Listfragment : Fragment() {
     }
 
     private fun displayExpiredCapsules() {
-        val currentTimeMillis = System.currentTimeMillis()
-        Log.d(TAG, "displayExpiredCapsules 호출됨 - currentTimeMillis: $currentTimeMillis")
+        Log.d(TAG, "displayExpiredCapsules 호출됨")
 
         val allCapsules = CapsuleRepository.getOpenedCapsules().distinctBy { it.capsuleId }
 
@@ -174,16 +210,13 @@ class Listfragment : Fragment() {
         allCapsules.forEachIndexed { index, capsule ->
             Log.d(
                 TAG,
-                "[$index] capsuleId=${capsule.capsuleId}, ddayMillis=${capsule.ddayMillis}, " +
-                        "title=${capsule.title}, isOpened=${capsule.isOpened}"
+                "[$index] capsuleId=${capsule.capsuleId}, ddayMillis=${capsule.ddayMillis}, title=${capsule.title}, isOpened=${capsule.isOpened}"
             )
         }
 
-        val expiredCapsules = allCapsules.filter {
-            it.ddayMillis != null && it.ddayMillis < currentTimeMillis
-        }
+        val expiredCapsules = allCapsules.filter { it.isOpened == true }
 
-        Log.d(TAG, "📌 만료된 캡슐 개수: ${expiredCapsules.size}")
+        Log.d(TAG, "📌 isOpened == true 인 만료된 캡슐 개수: ${expiredCapsules.size}")
 
         capsuleAdapter.submitList(expiredCapsules)
 
