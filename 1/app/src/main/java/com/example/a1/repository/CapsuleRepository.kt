@@ -6,6 +6,7 @@ import com.example.a1.capsule.Capsule
 import com.example.a1.capsule.CapsuleContent
 import com.example.a1.network.ApiClient
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -162,4 +163,5 @@ object CapsuleRepository {
             onFailure = { err -> onComplete(false, err) }
         )
     }
+
 }
