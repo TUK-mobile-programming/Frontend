@@ -3,7 +3,6 @@ package com.example.a1
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
@@ -29,6 +28,7 @@ import java.util.Calendar
 import java.util.Locale
 
 class AddFragment : Fragment() {
+    private val TAG = this::class.simpleName
 
     private var _binding: FragmentAddBinding? = null
     private val binding get() = _binding!!

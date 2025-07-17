@@ -16,6 +16,7 @@ import java.util.Locale
 
 object CapsuleRepository {
 
+    // ────────────────── 캐시 ──────────────────
     private val opened = mutableListOf<Capsule>()
     private val closed = mutableListOf<Capsule>()
 
@@ -27,8 +28,10 @@ object CapsuleRepository {
         closed.clear()
     }
 
+    // ────────────────── 날짜 포맷 ───────────────
     private val isoFmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.KOREA)
 
+    // ────────────────── ① 목록 새로고침 ─────────
     fun refreshCapsuleList(
         userId: Int,
         onComplete: (Boolean, String?) -> Unit
@@ -67,6 +70,7 @@ object CapsuleRepository {
                     mediaUri = firstImage,
                     ddayMillis = openAtMillis,
                     condition = o.optString("condition", null),
+                    createdMillis = isoFmt.parse(o.getString("created_at"))?.time,
                     isJoint = isJoint,
                     latitude = o.optDouble("location_lat"),
                     longitude = o.optDouble("location_lng"),
@@ -96,6 +100,7 @@ object CapsuleRepository {
         )
     }
 
+    // ────────────────── ② 상세 열람 ────────────
     fun fetchCapsuleDetail(
         capsuleId: Int,
         userLat: Double,
@@ -122,6 +127,7 @@ object CapsuleRepository {
                         tags = "",
                         mediaUri = contents.firstOrNull { it.type == "image" }?.data,
                         ddayMillis = isoFmt.parse(o.getString("open_at"))?.time,
+                        createdMillis = isoFmt.parse(o.getString("created_at"))?.time,
                         condition = null,
                         isJoint = false,
                         latitude = null,
@@ -140,6 +146,7 @@ object CapsuleRepository {
         )
     }
 
+    // ────────────────── ③ 생성(업로드) ─────────
     data class CapsuleCreateForm(
         val userId: Int,
         val capsuleName: String,
@@ -169,6 +176,7 @@ object CapsuleRepository {
             form.condition?.let { addFormDataPart("condition", it) }
             form.contentText?.let { addFormDataPart("content_text", it) }
 
+            // 파일 파트
             form.files.forEachIndexed { idx, uri ->
                 ctx.contentResolver.openInputStream(uri)?.use { s ->
                     val bytes = s.readBytes()

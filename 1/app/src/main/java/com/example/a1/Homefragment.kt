@@ -1,32 +1,23 @@
 package com.example.a1
 
-import android.util.Log
-import android.view.*
 import android.os.Bundle
+import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.example.a1.capsule.Capsule
-import com.example.a1.network.ApiClient
-import org.json.JSONObject
+import com.example.a1.repository.CapsuleRepository
+import com.example.a1.repository.UserRepository
 import java.time.*
-import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
 class Homefragment : Fragment() {
 
-    /* ---------- 상수 ---------- */
-    companion object {
-        const val USER_ID = "1"                 // ← 임시 테스트 계정
-        const val TAG     = "HomeFragment"
-    }
+    companion object { const val TAG = "HomeFragment" }
 
-    /* ---------- 데이터 ---------- */
     private var capsules: List<Capsule> = emptyList()
-    private var currIndex               = 0
+    private var currIndex = 0
 
-    /* ---------- View refs ---------- */
     private lateinit var tvName      : TextView
     private lateinit var tvDDay      : TextView
     private lateinit var ivPhoto     : ImageView
@@ -34,15 +25,15 @@ class Homefragment : Fragment() {
     private lateinit var btnPrev     : ImageButton
     private lateinit var btnNext     : ImageButton
 
-    /* ---------- 생명주기 ---------- */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_home, container, false)
+    ) = inflater.inflate(R.layout.fragment_home, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        /* View 바인딩 */
+        UserRepository.init(requireContext())   // 혹시 모를 미초기화 대비
+
         tvName       = view.findViewById(R.id.tvCapsuleName)
         tvDDay       = view.findViewById(R.id.tvDDay)
         ivPhoto      = view.findViewById(R.id.ivCapsulePhoto)
@@ -53,88 +44,40 @@ class Homefragment : Fragment() {
         btnNext.setOnClickListener { move(+1) }
         btnPrev.setOnClickListener { move(-1) }
 
-        fetchCapsules()          // 첫 화면
     }
 
-    override fun onResume() {
-        super.onResume()
-        fetchCapsules()          // 홈 탭으로 돌아올 때 새로고침
-    }
+    override fun onResume() { super.onResume(); refreshCapsules() }
 
-    /* ---------- 서버에서 캡슐 목록 가져오기 ---------- */
-    private fun fetchCapsules() {
-        ApiClient.getJson("capsule/closed/$USER_ID") { ok, res ->
+    /* ───────── 목록 새로고침 ───────── */
+    private fun refreshCapsules() {
+        val uid = UserRepository.getCurrentUser()?.userId
+        if (uid == null) { toast("로그인 정보를 찾을 수 없습니다."); return }
+
+        CapsuleRepository.refreshCapsuleList(uid) { ok, err ->
             requireActivity().runOnUiThread {
                 if (ok) {
-                    capsules = parseCapsules(res)
-                    if (capsules.isEmpty()) currIndex = 0
-                    else currIndex %= capsules.size
-                    updateUI()
-                } else {
-                    toast("캡슐 불러오기 실패: $res")
-                    capsules = emptyList()
-                    updateUI()
-                }
+                    capsules  = CapsuleRepository.getClosedCapsule()
+                    currIndex = currIndex.coerceAtMost((capsules.size - 1).coerceAtLeast(0))
+                } else toast("캡슐 불러오기 실패: $err")
+                updateUI()
             }
         }
     }
 
-    /* ---------- JSON → Capsule 리스트 ---------- */
-    private fun parseCapsules(json: String): List<Capsule> {
-        val list = mutableListOf<Capsule>()
-        try {
-            val root = JSONObject(json)
-            val arr  = root.optJSONArray("capsules") ?: return emptyList()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-
-                val title  = obj.optString("capsule_name")
-                val openAt = obj.optString("open_at", null)
-                val openMs = openAt?.let { isoToMillis(it) }
-
-                list += Capsule(
-                    title       = title,
-                    body        = "",
-                    tags        = "",
-                    mediaUri    = null,
-                    ddayMillis  = openMs,
-                    condition   = null,
-                    isJoint     = obj.optInt("type", 0) == 1
-                )
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "parseCapsules error", e)
-        }
-        return list
-    }
-
-    private fun isoToMillis(iso: String): Long? = try {
-        OffsetDateTime.parse(iso).toInstant().toEpochMilli()
-    } catch (_: DateTimeParseException) { null }
-
-    /* ---------- 좌·우 이동 ---------- */
-    private fun move(step: Int) {
-        if (capsules.isNotEmpty()) {
-            currIndex = (currIndex + step + capsules.size) % capsules.size
-            updateUI()
-        }
-    }
-
-    /* ---------- UI 표기 ---------- */
+    /* ───────── UI 업데이트 ───────── */
     private fun updateUI() {
-
         if (capsules.isEmpty()) {
-            tvName.text      = "캡슐이 없습니다"
-            tvDDay.text      = "—"
+            tvName.text = "캡슐이 없습니다"
+            tvDDay.text = "—"
             tvIndicator.text = "0 / 0"
             ivPhoto.setImageResource(R.drawable.hourglass0)
             return
         }
-        val cap = capsules[currIndex]
 
+        val cap = capsules[currIndex]
         tvName.text = cap.title
 
-        // D-Day
+        /* D-Day */
         tvDDay.text = cap.ddayMillis?.let { ms ->
             val diff = ChronoUnit.DAYS.between(
                 LocalDate.now(),
@@ -143,38 +86,37 @@ class Homefragment : Fragment() {
             "D${if (diff >= 0) "-" else "+"}${abs(diff)}"
         } ?: "—"
 
-        // (현재는 사진 대신 모래시계 아이콘만)
-        //ivPhoto.setImageResource(selectHourglass(cap))
-        ivPhoto.setImageResource(R.drawable.hourglass1)
-        // 페이지 인디케이터
+        /* 진행도별 모래시계 */
+        ivPhoto.setImageResource(selectHourglass(cap))
+
         tvIndicator.text = "${currIndex + 1} / ${capsules.size}"
     }
 
-    /* ---------- 모래시계 단계 선택 ---------- */
-    /*
+    /** 진행도 → hourglass1~4 매핑 */
     private fun selectHourglass(cap: Capsule): Int {
+        val open    = cap.ddayMillis    ?: return R.drawable.hourglass0
+        val created = cap.createdMillis ?: return R.drawable.hourglass0
+        if (open <= created)             return R.drawable.hourglass4  // 데이터 이상
 
-        val openRaw    = cap.ddayMillis
-        val createdRaw = cap.createdMillis
-        if (openRaw == null || createdRaw == null)
-            return R.drawable.hourglass0
-
-        val open    : Long = openRaw
-        val created : Long = createdRaw
-
-        val span    = (open - created).coerceAtLeast(1L)
+        val span    = open - created
         val elapsed = (System.currentTimeMillis() - created).coerceIn(0L, span)
-        val ratio   = elapsed.toDouble() / span
+        val ratio   = elapsed.toDouble() / span        // 0.0 ~ 1.0
 
         return when {
             ratio < 0.25 -> R.drawable.hourglass1
             ratio < 0.50 -> R.drawable.hourglass2
             ratio < 0.75 -> R.drawable.hourglass3
-            ratio < 1.00 -> R.drawable.hourglass4
             else         -> R.drawable.hourglass4
         }
-    }*/
+    }
 
+    /* ───────── 기타 헬퍼 ───────── */
+    private fun move(step: Int) {
+        if (capsules.isNotEmpty()) {
+            currIndex = (currIndex + step + capsules.size) % capsules.size
+            updateUI()
+        }
+    }
     private fun toast(msg: String) =
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 }
