@@ -9,6 +9,7 @@ data class Capsule(
     val tags: String,
     val mediaUri: String?,
     val ddayMillis: Long?,
+    val createdMillis: Long?,
     val condition: String?,
     val isJoint: Boolean,
 
