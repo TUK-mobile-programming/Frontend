@@ -120,12 +120,18 @@ object CapsuleRepository {
                             data = c.getString("content_data")
                         )
                     }
+
+                    // ✅ 텍스트/이미지/비디오에서 대표 미디어 추출
+                    val mediaUri = contents.firstOrNull {
+                        it.type == "image" || it.type == "video"
+                    }?.data
+
                     val cap = Capsule(
                         capsuleId = o.getInt("capsule_id"),
                         title = o.getString("capsule_name"),
                         body = contents.firstOrNull { it.type == "text" }?.data ?: "",
                         tags = "",
-                        mediaUri = contents.firstOrNull { it.type == "image" }?.data,
+                        mediaUri = mediaUri,  // ✅ 여기에 반영
                         ddayMillis = isoFmt.parse(o.getString("open_at"))?.time,
                         createdMillis = isoFmt.parse(o.getString("created_at"))?.time,
                         condition = null,
@@ -137,6 +143,10 @@ object CapsuleRepository {
                     )
                     opened.removeIf { it.capsuleId == cap.capsuleId }
                     opened += cap
+
+                    Log.e("캡슐 디테일", "받아온 캡슐 전체: $cap")
+                    Log.e("캡슐 디테일", "미디어 URI: ${cap.mediaUri}")
+
                     onComplete(true, cap, null)
                 } catch (e: Exception) {
                     onComplete(false, null, e.message)
