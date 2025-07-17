@@ -50,4 +50,15 @@
         android:name="com.example.a1.Mypagefragment"
         tools:layout="@layout/fragment_mypage" />
 
+        <!-- ─── ⑦ 친구 목록 (FriendListFragment) ──────── -->
+        <fragment
+            android:id="@+id/friendListFragment"
+            android:name="com.example.a1.FriendListFragment"
+            tools:layout="@layout/fragment_friend_list" />
+
+
+
+
+
+
 </navigation>

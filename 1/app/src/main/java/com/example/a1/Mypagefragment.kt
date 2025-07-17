@@ -94,7 +94,7 @@ class Mypagefragment : Fragment() {
 
         view.findViewById<LinearLayout>(R.id.menu_friend).setOnClickListener {
             Toast.makeText(requireContext(), "친구 관리 클릭됨", Toast.LENGTH_SHORT).show()
-            val intent = Intent(requireContext(), FriendListActivity::class.java)
+            val intent = Intent(requireContext(), FriendListFragment::class.java)
             startActivity(intent)
         }
 

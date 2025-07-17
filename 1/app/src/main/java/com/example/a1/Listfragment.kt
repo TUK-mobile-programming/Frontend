@@ -1,16 +1,14 @@
 package com.example.a1
 
-import android.content.Intent // 이 줄을 추가합니다.
-import java.io.Serializable
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.a1.capsule.Capsule
 import com.example.a1.cpasule.CapsuleAdapter
-import com.example.a1.databinding.FragmentListBinding // fragment_list.xml에 대한 뷰 바인딩
+import com.example.a1.databinding.FragmentListBinding
 import com.example.a1.repository.CapsuleRepository
 import java.util.Calendar
 

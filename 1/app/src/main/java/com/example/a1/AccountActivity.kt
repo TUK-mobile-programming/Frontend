@@ -28,9 +28,11 @@ class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_account)
 
         val backButton: ImageView = findViewById(R.id.btn_backed)
+
         backButton.setOnClickListener {
             finish()  // 이전 화면으로 이동
         }
@@ -82,5 +84,16 @@ class AccountActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             galleryLauncher.launch(intent)
         }
+        // 수정 07/17 - 계정 ID, 비번 보이게끔 함
+        // 예시: Intent로 전달된 사용자 정보 받기
+        val userId = intent.getStringExtra("user_id") ?: "default_id"
+        val userNickname = intent.getStringExtra("user_nickname") ?: "홍길동"
+        val userPassword = intent.getStringExtra("user_password") ?: ""
+
+        // 화면에 표시
+        userIdText.text = userId
+        userName.text = userNickname
+        passwordEditText.setText(userPassword)
+
     }
 }
