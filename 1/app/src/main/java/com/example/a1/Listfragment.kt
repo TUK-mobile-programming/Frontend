@@ -3,17 +3,25 @@ package com.example.a1
 import android.content.Intent // 이 줄을 추가합니다.
 import java.io.Serializable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a1.capsule.Capsule
 import com.example.a1.cpasule.CapsuleAdapter
 import com.example.a1.databinding.FragmentListBinding // fragment_list.xml에 대한 뷰 바인딩
 import com.example.a1.repository.CapsuleRepository
+import com.example.a1.repository.UserRepository
 import java.util.Calendar
 
+/**
+ * 수정 전 코드
+ */
+
+/*
 class Listfragment : Fragment() {
 
     // 뷰 바인딩 선언
@@ -94,5 +102,104 @@ class Listfragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // 뷰 바인딩 참조 해제하여 메모리 누수 방지
+    }
+}*/
+/**
+ * 만료된 캡슐만 보여주는 중
+ */
+
+class Listfragment : Fragment() {
+
+    private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var capsuleAdapter: CapsuleAdapter
+    private val TAG = "ListFragment"
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentListBinding.inflate(inflater, container, false)
+        initRecyclerView()
+        return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val userId = UserRepository.getCurrentUser()?.userId
+        Log.d(TAG, "onResume 호출됨 - userId: $userId")
+
+        if (userId != null) {
+            Log.d(TAG, "캡슐 목록 서버 요청 시작")
+            CapsuleRepository.refreshCapsuleList(userId) { ok, err ->
+                activity?.runOnUiThread {
+                    if (ok) {
+                        Log.d(TAG, "✅ 서버에서 캡슐 목록 새로고침 성공")
+                        displayExpiredCapsules()
+                    } else {
+                        Log.e(TAG, "❌ 목록 로딩 실패: $err")
+                        Toast.makeText(requireContext(), "목록 로딩 실패: $err", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            Log.e(TAG, "❗ 로그인 정보가 없음")
+            Toast.makeText(requireContext(), "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun initRecyclerView() {
+        capsuleAdapter = CapsuleAdapter(emptyList()) { capsule ->
+            val intent = Intent(requireContext(), CapsuleDetailActivity::class.java).apply {
+                putExtra("selected_capsule", capsule)
+            }
+            startActivity(intent)
+        }
+
+        binding.capsuleRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = capsuleAdapter
+        }
+    }
+
+    private fun displayExpiredCapsules() {
+        val currentTimeMillis = System.currentTimeMillis()
+        Log.d(TAG, "displayExpiredCapsules 호출됨 - currentTimeMillis: $currentTimeMillis")
+
+        val allCapsules = CapsuleRepository.getOpenedCapsules().distinctBy { it.capsuleId }
+
+        Log.d(TAG, "전체 캡슐 개수: ${allCapsules.size}")
+        allCapsules.forEachIndexed { index, capsule ->
+            Log.d(
+                TAG,
+                "[$index] capsuleId=${capsule.capsuleId}, ddayMillis=${capsule.ddayMillis}, " +
+                        "title=${capsule.title}, isOpened=${capsule.isOpened}"
+            )
+        }
+
+        val expiredCapsules = allCapsules.filter {
+            it.ddayMillis != null && it.ddayMillis < currentTimeMillis
+        }
+
+        Log.d(TAG, "📌 만료된 캡슐 개수: ${expiredCapsules.size}")
+
+        capsuleAdapter.submitList(expiredCapsules)
+
+        if (expiredCapsules.isEmpty()) {
+            Log.d(TAG, "⚠️ 만료된 캡슐 없음 → emptyListMessage 표시")
+            binding.emptyListMessage.visibility = View.VISIBLE
+            binding.capsuleRecyclerView.visibility = View.GONE
+        } else {
+            Log.d(TAG, "✅ 만료된 캡슐 있음 → RecyclerView 표시")
+            binding.emptyListMessage.visibility = View.GONE
+            binding.capsuleRecyclerView.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
